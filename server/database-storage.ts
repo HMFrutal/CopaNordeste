@@ -348,6 +348,7 @@ export class DatabaseStorage implements IStorage {
         name: row.name,
         document: row.document || null,
         image: row.image || null,
+        teamId: row.teamId || null,
         createdAt: new Date(row.createdAt),
         updatedAt: new Date(row.updatedAt),
       }));
@@ -367,6 +368,7 @@ export class DatabaseStorage implements IStorage {
         name: athlete.name,
         document: athlete.document || null,
         image: athlete.image || null,
+        teamId: athlete.teamId || null,
         createdAt: new Date(athlete.createdAt),
         updatedAt: new Date(athlete.updatedAt),
       };
@@ -499,6 +501,85 @@ export class DatabaseStorage implements IStorage {
       return (result.rowCount ?? 0) > 0;
     } catch (error) {
       console.error("Erro ao deletar time:", error);
+      throw error;
+    }
+  }
+
+  // Método para buscar atletas por time
+  async getAthletesByTeam(teamId: string): Promise<Athlete[]> {
+    try {
+      const result = await db.select().from(athletes).where(eq(athletes.teamId, teamId));
+      
+      return result.map(row => ({
+        id: row.id,
+        name: row.name,
+        document: row.document || null,
+        image: row.image || null,
+        teamId: row.teamId || null,
+        createdAt: new Date(row.createdAt),
+        updatedAt: new Date(row.updatedAt),
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar atletas por time:", error);
+      throw error;
+    }
+  }
+
+  // Métodos para relacionamentos de campeonatos e times
+  async getChampionshipTeams(championshipId: string): Promise<AdminTeam[]> {
+    try {
+      const result = await db.execute(sql`
+        SELECT t.* FROM admin_teams t
+        INNER JOIN championship_teams ct ON t.id = ct.team_id
+        WHERE ct.championship_id = ${championshipId}
+      `);
+      
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        image: row.image || null,
+        responsible: row.responsible || null,
+        phone: row.phone || null,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar times do campeonato:", error);
+      throw error;
+    }
+  }
+
+  async addTeamToChampionship(championshipId: string, teamId: string): Promise<ChampionshipTeam> {
+    try {
+      const [result] = await db.insert(championshipTeams).values({
+        championshipId,
+        teamId,
+      }).returning();
+      
+      return {
+        id: result.id,
+        championshipId: result.championshipId,
+        teamId: result.teamId,
+        createdAt: result.createdAt!,
+      };
+    } catch (error) {
+      console.error("Erro ao adicionar time ao campeonato:", error);
+      throw error;
+    }
+  }
+
+  async removeTeamFromChampionship(championshipId: string, teamId: string): Promise<boolean> {
+    try {
+      const result = await db.delete(championshipTeams).where(
+        and(
+          eq(championshipTeams.championshipId, championshipId),
+          eq(championshipTeams.teamId, teamId)
+        )
+      );
+      
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      console.error("Erro ao remover time do campeonato:", error);
       throw error;
     }
   }

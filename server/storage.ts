@@ -17,7 +17,8 @@ import {
   type InsertAthlete,
   type Referee,
   type InsertReferee,
-  type ChampionshipTeam
+  type ChampionshipTeam,
+  type InsertChampionshipTeam
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -66,6 +67,7 @@ export interface IStorage {
   // Athletes
   getAthletes(): Promise<Athlete[]>;
   getAthlete(id: string): Promise<Athlete | undefined>;
+  getAthletesByTeam(teamId: string): Promise<Athlete[]>;
   createAthlete(athlete: InsertAthlete): Promise<Athlete>;
   updateAthlete(id: string, athlete: Partial<InsertAthlete>): Promise<Athlete | undefined>;
   deleteAthlete(id: string): Promise<boolean>;

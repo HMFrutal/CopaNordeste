@@ -83,12 +83,13 @@ export const adminTeams = pgTable("admin_teams", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Nova tabela: Atletas (3 campos simples)
+// Nova tabela: Atletas (4 campos: nome, documento, imagem, time)
 export const athletes = pgTable("athletes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(), // Nome do atleta
   document: text("document"), // Documento (CPF, RG, etc)
   image: text("image"), // URL da foto do atleta
+  teamId: varchar("team_id").references(() => adminTeams.id), // Time do atleta
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -167,6 +168,7 @@ export const insertAthleteSchema = createInsertSchema(athletes).omit({
 }).extend({
   name: z.string().min(1, "Nome do atleta é obrigatório"),
   document: z.string().optional(),
+  teamId: z.string().optional(),
 });
 
 export const insertRefereeSchema = createInsertSchema(referees).omit({

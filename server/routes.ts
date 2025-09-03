@@ -259,6 +259,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/teams/:teamId/athletes", async (req, res) => {
+    try {
+      const athletes = await storage.getAthletesByTeam(req.params.teamId);
+      res.json(athletes);
+    } catch (error) {
+      res.status(500).json({ message: "Falha ao buscar atletas do time" });
+    }
+  });
+
   app.get("/api/admin/athletes/:id", async (req, res) => {
     try {
       const athlete = await storage.getAthlete(req.params.id);
