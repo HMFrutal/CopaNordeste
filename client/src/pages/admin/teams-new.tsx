@@ -43,10 +43,7 @@ export default function TeamsNewPage() {
 
   const createMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return await apiRequest("/api/admin/teams", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest("/api/admin/teams", "POST", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/teams"] });

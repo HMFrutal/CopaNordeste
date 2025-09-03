@@ -36,9 +36,7 @@ export default function TeamsPage() {
   // Mutation para deletar time
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/admin/teams/${id}`, {
-        method: "DELETE",
-      });
+      await apiRequest(`/api/admin/teams/${id}`, "DELETE");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/teams"] });

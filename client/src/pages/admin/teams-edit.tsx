@@ -73,10 +73,7 @@ export default function TeamsEditPage({ params }: TeamsEditPageProps) {
 
   const updateMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return await apiRequest(`/api/admin/teams/${teamId}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest(`/api/admin/teams/${teamId}`, "PUT", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/teams"] });

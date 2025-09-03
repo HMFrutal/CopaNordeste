@@ -525,13 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        imageURL,
-        {
-          owner: "system", // Como não temos auth específico, usar system
-          visibility: "public", // Permitir acesso público às imagens dos campeonatos
-        }
-      );
+      const objectPath = objectStorageService.normalizeObjectEntityPath(imageURL);
 
       res.status(200).json({
         objectPath: objectPath,
