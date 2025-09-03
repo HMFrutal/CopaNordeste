@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navigation() {
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+  };
 
   const navigation = [
     { name: "Início", href: "/" },
@@ -50,17 +57,42 @@ export default function Navigation() {
                 </Link>
               ))}
               
-              {/* Admin Button */}
-              <Link href="/admin">
-                <Button 
-                  variant={location.startsWith('/admin') ? "default" : "outline"}
-                  size="sm"
-                  className="ml-4"
-                  data-testid="nav-admin-button"
-                >
-                  Admin
-                </Button>
-              </Link>
+              {/* Admin/Auth Buttons */}
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-2 ml-4">
+                  <Link href="/admin">
+                    <Button 
+                      variant={location.startsWith('/admin') ? "default" : "outline"}
+                      size="sm"
+                      data-testid="nav-admin-button"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    data-testid="nav-logout-button"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </Button>
+                </div>
+              ) : (
+                <Link href="/admin/login">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="ml-4"
+                    data-testid="nav-login-button"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           
@@ -96,19 +128,47 @@ export default function Navigation() {
                 </Link>
               ))}
               
-              {/* Admin Button Mobile */}
-              <div className="px-3 py-2">
-                <Link href="/admin">
-                  <Button 
-                    variant={location.startsWith('/admin') ? "default" : "outline"}
-                    size="sm"
-                    className="w-full"
-                    data-testid="mobile-nav-admin-button"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Admin
-                  </Button>
-                </Link>
+              {/* Admin/Auth Buttons Mobile */}
+              <div className="px-3 py-2 space-y-2">
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/admin">
+                      <Button 
+                        variant={location.startsWith('/admin') ? "default" : "outline"}
+                        size="sm"
+                        className="w-full"
+                        data-testid="mobile-nav-admin-button"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Admin
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={handleLogout}
+                      data-testid="mobile-nav-logout-button"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sair
+                    </Button>
+                  </>
+                ) : (
+                  <Link href="/admin/login">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      data-testid="mobile-nav-login-button"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
