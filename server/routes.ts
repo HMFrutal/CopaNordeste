@@ -252,10 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Athletes routes
   app.get("/api/admin/athletes", async (req, res) => {
     try {
-      const { teamId } = req.query;
-      const athletes = teamId 
-        ? await storage.getAthletesByTeam(teamId as string)
-        : await storage.getAthletes();
+      const athletes = await storage.getAthletes();
       res.json(athletes);
     } catch (error) {
       res.status(500).json({ message: "Falha ao buscar atletas" });

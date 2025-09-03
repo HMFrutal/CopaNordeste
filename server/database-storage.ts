@@ -336,6 +336,114 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Athletes methods (novos métodos para atletas)
+  async getAthletes(): Promise<Athlete[]> {
+    try {
+      console.log("Executando query para buscar atletas...");
+      const result = await db.select().from(athletes);
+      console.log("Query SQL executada com sucesso, resultado:", result);
+      
+      return result.map(row => ({
+        id: row.id,
+        name: row.name,
+        document: row.document || null,
+        image: row.image || null,
+        createdAt: new Date(row.createdAt),
+        updatedAt: new Date(row.updatedAt),
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar atletas:", error);
+      throw error;
+    }
+  }
+
+  async getAthlete(id: string): Promise<Athlete | undefined> {
+    try {
+      const [athlete] = await db.select().from(athletes).where(eq(athletes.id, id));
+      if (!athlete) return undefined;
+      
+      return {
+        id: athlete.id,
+        name: athlete.name,
+        document: athlete.document || null,
+        image: athlete.image || null,
+        createdAt: new Date(athlete.createdAt),
+        updatedAt: new Date(athlete.updatedAt),
+      };
+    } catch (error) {
+      console.error("Erro ao buscar atleta:", error);
+      throw error;
+    }
+  }
+
+  async createAthlete(insertAthlete: InsertAthlete): Promise<Athlete> {
+    try {
+      console.log("Criando atleta com dados:", insertAthlete);
+      
+      const result = await db.execute(sql`
+        INSERT INTO athletes (name, document, image, created_at, updated_at) 
+        VALUES (${insertAthlete.name}, ${insertAthlete.document || null}, ${insertAthlete.image || null}, NOW(), NOW())
+        RETURNING *
+      `);
+      console.log("Atleta criado com sucesso:", result.rows[0]);
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        document: row.document || null,
+        image: row.image || null,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      };
+    } catch (error) {
+      console.error("Erro ao criar atleta:", error);
+      throw error;
+    }
+  }
+
+  async updateAthlete(id: string, updateData: Partial<InsertAthlete>): Promise<Athlete | undefined> {
+    try {
+      const result = await db.execute(sql`
+        UPDATE athletes 
+        SET name = COALESCE(${updateData.name}, name),
+            document = COALESCE(${updateData.document}, document), 
+            image = COALESCE(${updateData.image}, image),
+            updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
+      `);
+      
+      if (result.rows.length === 0) return undefined;
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        document: row.document || null,
+        image: row.image || null,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      };
+    } catch (error) {
+      console.error("Erro ao atualizar atleta:", error);
+      throw error;
+    }
+  }
+
+  async deleteAthlete(id: string): Promise<boolean> {
+    try {
+      const result = await db.execute(sql`
+        DELETE FROM athletes WHERE id = ${id}
+      `);
+      
+      return result.rowCount ? result.rowCount > 0 : false;
+    } catch (error) {
+      console.error("Erro ao deletar atleta:", error);
+      throw error;
+    }
+  }
+
   async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
     try {
       const query = `

@@ -65,7 +65,6 @@ export interface IStorage {
 
   // Athletes
   getAthletes(): Promise<Athlete[]>;
-  getAthletesByTeam(teamId: string): Promise<Athlete[]>;
   getAthlete(id: string): Promise<Athlete | undefined>;
   createAthlete(athlete: InsertAthlete): Promise<Athlete>;
   updateAthlete(id: string, athlete: Partial<InsertAthlete>): Promise<Athlete | undefined>;
@@ -326,7 +325,6 @@ export class MemStorage implements IStorage {
   async deleteAdminTeam(id: string): Promise<boolean> { return false; }
 
   async getAthletes(): Promise<Athlete[]> { return []; }
-  async getAthletesByTeam(teamId: string): Promise<Athlete[]> { return []; }
   async getAthlete(id: string): Promise<Athlete | undefined> { return undefined; }
   async createAthlete(athlete: InsertAthlete): Promise<Athlete> { 
     throw new Error("Use DatabaseStorage for admin features"); 

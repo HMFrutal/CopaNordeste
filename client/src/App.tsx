@@ -20,6 +20,9 @@ import ChampionshipEditPage from "@/pages/admin/championship-edit";
 import TeamsPage from "@/pages/admin/teams";
 import TeamsNewPage from "@/pages/admin/teams-new";
 import TeamsEditPage from "@/pages/admin/teams-edit";
+import AthletesPage from "@/pages/admin/athletes";
+import AthletesNewPage from "@/pages/admin/athletes-new";
+import AthletesEditPage from "@/pages/admin/athletes-edit";
 import AdminLogin from "@/pages/admin/login";
 
 function Router() {
@@ -42,6 +45,11 @@ function Router() {
       <Route path="/admin/teams/new" component={() => <ProtectedRoute><TeamsNewPage /></ProtectedRoute>} />
       <Route path="/admin/teams/:id/edit" component={() => <ProtectedRoute><TeamsEditPage /></ProtectedRoute>} />
       <Route path="/admin/teams" component={() => <ProtectedRoute><TeamsPage /></ProtectedRoute>} />
+      
+      {/* Admin Athletes Routes */}
+      <Route path="/admin/athletes/new" component={() => <ProtectedRoute><AthletesNewPage /></ProtectedRoute>} />
+      <Route path="/admin/athletes/:id/edit" component={() => <ProtectedRoute><AthletesEditPage /></ProtectedRoute>} />
+      <Route path="/admin/athletes" component={() => <ProtectedRoute><AthletesPage /></ProtectedRoute>} />
       <Route component={NotFound} />
     </Switch>
   );
