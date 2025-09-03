@@ -18,7 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Save, ArrowLeft } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { insertAthleteSchema, type InsertAthlete, type Athlete } from "@shared/schema";
+import { insertAthleteSchema, type InsertAthlete, type Athlete, type AdminTeam } from "@shared/schema";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageUploader } from "@/components/ImageUploader";
 
 export default function AthletesEditPage() {
@@ -34,12 +35,18 @@ export default function AthletesEditPage() {
     enabled: !!athleteId,
   });
 
+  // Buscar todos os times disponíveis
+  const { data: teams = [] } = useQuery<AdminTeam[]>({
+    queryKey: ["/api/admin/teams"],
+  });
+
   const form = useForm<InsertAthlete>({
     resolver: zodResolver(insertAthleteSchema),
     defaultValues: {
       name: "",
       document: "",
       image: "",
+      teamId: "none",
     },
   });
 
@@ -50,6 +57,7 @@ export default function AthletesEditPage() {
         name: athlete.name || "",
         document: athlete.document || "",
         image: athlete.image || "",
+        teamId: athlete.teamId || "none",
       });
       setImageUrl(athlete.image || "");
     }
@@ -84,6 +92,7 @@ export default function AthletesEditPage() {
     const formattedData = {
       ...data,
       image: imageUrl || null,
+      teamId: data.teamId === "none" ? null : data.teamId || null,
     };
     updateMutation.mutate(formattedData);
   };
@@ -184,6 +193,40 @@ export default function AthletesEditPage() {
                   )}
                 />
               </div>
+
+              {/* Seleção de Time */}
+              <FormField
+                control={form.control}
+                name="teamId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Time</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-team">
+                          <SelectValue placeholder="Selecione um time (opcional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none" data-testid="select-team-none">
+                          <span className="text-gray-500">Nenhum time</span>
+                        </SelectItem>
+                        {teams.map((team) => (
+                          <SelectItem key={team.id} value={team.id} data-testid={`select-team-${team.id}`}>
+                            <div className="flex items-center space-x-2">
+                              {team.image && (
+                                <img src={team.image} alt={team.name} className="w-4 h-4 rounded" />
+                              )}
+                              <span>{team.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               {/* Upload de Imagem */}
               <div className="space-y-2">
