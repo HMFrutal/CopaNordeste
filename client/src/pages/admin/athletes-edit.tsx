@@ -1,41 +1,39 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation, useRoute } from "wouter";
+import { ArrowLeft, Save, User } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { User, Save, ArrowLeft } from "lucide-react";
-import { useLocation, useRoute } from "wouter";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-import { insertAthleteSchema, type InsertAthlete, type Athlete, type AdminTeam } from "@shared/schema";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { ImageUploader } from "@/components/ImageUploader";
 
+import { insertAthleteSchema, type InsertAthlete, type Athlete } from "@shared/schema";
+import type { AdminTeam } from "@shared/schema";
+
 export default function AthletesEditPage() {
-  const [location, setLocation] = useLocation();
-  const [match, params] = useRoute("/admin/athletes/:id/edit");
+  const [, setLocation] = useLocation();
+  const [, params] = useRoute("/admin/athletes/:id");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [imageUrl, setImageUrl] = useState<string>("");
 
   const athleteId = params?.id || "";
 
+  // Buscar dados do atleta
   const { data: athlete, isLoading: isLoadingAthlete } = useQuery<Athlete>({
     queryKey: ["/api/admin/athletes", athleteId],
     enabled: !!athleteId,
   });
 
-  // Buscar todos os times disponíveis
+  // Buscar times disponíveis
   const { data: teams = [] } = useQuery<AdminTeam[]>({
     queryKey: ["/api/admin/teams"],
   });
@@ -50,10 +48,10 @@ export default function AthletesEditPage() {
     },
   });
 
-  // Atualizar formulário quando os dados do atleta carregarem
+  // Atualizar formulário quando dados carregarem
   useEffect(() => {
     if (athlete) {
-      const athleteData = athlete as any; // Temporary type assertion
+      const athleteData = athlete as any;
       form.reset({
         name: athleteData.name || "",
         document: athleteData.document || "",
@@ -70,18 +68,17 @@ export default function AthletesEditPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/athletes"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/athletes", athleteId] });
       toast({
-        title: "Sucesso!",
-        description: "Atleta atualizado com sucesso.",
+        title: "Atleta atualizado!",
+        description: "As informações do atleta foram atualizadas com sucesso.",
       });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/athletes"] });
       setLocation("/admin/athletes");
     },
     onError: (error: any) => {
       toast({
-        title: "Erro",
-        description: error.message || "Falha ao atualizar atleta",
+        title: "Erro ao atualizar",
+        description: error.message || "Não foi possível atualizar o atleta.",
         variant: "destructive",
       });
     },
@@ -124,6 +121,7 @@ export default function AthletesEditPage() {
 
   return (
     <div className="space-y-6">
+      {/* Cabeçalho */}
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
@@ -143,6 +141,7 @@ export default function AthletesEditPage() {
         </div>
       </div>
 
+      {/* Formulário */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -153,79 +152,73 @@ export default function AthletesEditPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              
+              {/* Campos principais */}
               <div className="grid gap-6 md:grid-cols-2">
                 {/* Nome */}
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Nome completo do atleta"
-                          {...field}
-                          data-testid="input-name"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Nome completo do atleta"
+                    {...form.register("name")}
+                    data-testid="input-name"
+                  />
+                  {form.formState.errors.name && (
+                    <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
                   )}
-                />
+                </div>
 
                 {/* Documento */}
+                <div className="space-y-2">
+                  <Label htmlFor="document">Documento</Label>
+                  <Input
+                    id="document"
+                    placeholder="CPF, RG ou outro documento"
+                    {...form.register("document")}
+                    data-testid="input-document"
+                  />
+                  {form.formState.errors.document && (
+                    <p className="text-sm text-red-600">{form.formState.errors.document.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Seleção de Time */}
+              <div className="space-y-2">
+                <Label>Time</Label>
                 <FormField
                   control={form.control}
-                  name="document"
+                  name="teamId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Documento</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="CPF, RG ou outro documento"
-                          {...field}
-                          data-testid="input-document"
-                        />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-team">
+                            <SelectValue placeholder="Selecione um time (opcional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="none" data-testid="select-team-none">
+                            <span className="text-gray-500">Nenhum time</span>
+                          </SelectItem>
+                          {teams.map((team) => (
+                            <SelectItem key={team.id} value={team.id} data-testid={`select-team-${team.id}`}>
+                              <div className="flex items-center space-x-2">
+                                {team.image && (
+                                  <img src={team.image} alt={team.name} className="w-4 h-4 rounded" />
+                                )}
+                                <span>{team.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
-              {/* Seleção de Time */}
-              <FormField
-                control={form.control}
-                name="teamId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Time</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-team">
-                          <SelectValue placeholder="Selecione um time (opcional)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="none" data-testid="select-team-none">
-                          <span className="text-gray-500">Nenhum time</span>
-                        </SelectItem>
-                        {teams.map((team) => (
-                          <SelectItem key={team.id} value={team.id} data-testid={`select-team-${team.id}`}>
-                            <div className="flex items-center space-x-2">
-                              {team.image && (
-                                <img src={team.image} alt={team.name} className="w-4 h-4 rounded" />
-                              )}
-                              <span>{team.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               {/* Upload de Imagem */}
               <div className="space-y-2">
@@ -247,7 +240,8 @@ export default function AthletesEditPage() {
                 )}
               </div>
 
-              <div className="flex justify-end space-x-4">
+              {/* Botões de Ação */}
+              <div className="flex justify-end space-x-4 pt-6">
                 <Button
                   type="button"
                   variant="outline"
