@@ -100,7 +100,7 @@ export default function ChampionshipDetailsPage() {
                     <div className="flex items-center mt-1">
                       <Calendar className="h-4 w-4 mr-2 text-green-600" />
                       <span className="font-medium">
-                        {new Date(championship.startDate).toLocaleDateString('pt-BR')}
+                        {championship.startDate.split('-').reverse().join('/')}
                       </span>
                     </div>
                   </div>
@@ -112,7 +112,7 @@ export default function ChampionshipDetailsPage() {
                     <div className="flex items-center mt-1">
                       <Calendar className="h-4 w-4 mr-2 text-red-600" />
                       <span className="font-medium">
-                        {new Date(championship.endDate).toLocaleDateString('pt-BR')}
+                        {championship.endDate.split('-').reverse().join('/')}
                       </span>
                     </div>
                   </div>

@@ -257,7 +257,7 @@ export default function ChampionshipEditPage() {
                             </CardTitle>
                             <CardDescription className="text-blue-700 dark:text-blue-300">
                               {form.watch("startDate") && form.watch("endDate")
-                                ? `${new Date(form.watch("startDate")!).toLocaleDateString('pt-BR')} - ${new Date(form.watch("endDate")!).toLocaleDateString('pt-BR')}`
+                                ? `${form.watch("startDate")!.split('-').reverse().join('/')} - ${form.watch("endDate")!.split('-').reverse().join('/')}`
                                 : "Período a ser definido"
                               }
                             </CardDescription>

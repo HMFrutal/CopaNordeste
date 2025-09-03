@@ -242,8 +242,7 @@ export default function NewChampionshipPage() {
                   </h3>
                   {form.watch("startDate") && form.watch("endDate") && (
                     <p className="text-gray-600 dark:text-gray-400">
-                      {new Date(form.watch("startDate")).toLocaleDateString("pt-BR")} - {" "}
-                      {new Date(form.watch("endDate")).toLocaleDateString("pt-BR")}
+                      {form.watch("startDate").split('-').reverse().join('/')} - {form.watch("endDate").split('-').reverse().join('/')}
                     </p>
                   )}
                 </div>
