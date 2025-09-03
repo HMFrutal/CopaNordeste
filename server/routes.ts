@@ -437,6 +437,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint para configurar ACL após upload
+  app.put("/api/images", async (req, res) => {
+    try {
+      const { imageURL } = req.body;
+      
+      if (!imageURL) {
+        return res.status(400).json({ error: "imageURL é obrigatória" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        imageURL,
+        {
+          owner: "system", // Como não temos auth específico, usar system
+          visibility: "public", // Permitir acesso público às imagens dos campeonatos
+        }
+      );
+
+      res.status(200).json({
+        objectPath: objectPath,
+      });
+    } catch (error) {
+      console.error("Erro ao configurar ACL da imagem:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

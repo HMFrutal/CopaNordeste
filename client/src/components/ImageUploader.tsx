@@ -104,7 +104,15 @@ export function ImageUploader({
       
       if (pathParts.length >= 3) {
         // O caminho após o bucket é o que precisamos
+        // Remove bucket name e .private prefix, mantendo apenas uploads/id
         const objectPath = pathParts.slice(2).join("/");
+        
+        // Se começa com .private/uploads, remover .private/ 
+        if (objectPath.startsWith(".private/uploads/")) {
+          const cleanPath = objectPath.replace(".private/", "");
+          return `/objects/${cleanPath}`;
+        }
+        
         return `/objects/${objectPath}`;
       }
     }
@@ -140,6 +148,19 @@ export function ImageUploader({
       });
 
       if (!uploadResponse.ok) throw new Error("Falha no upload");
+
+      // Configurar ACL da imagem para permitir acesso público
+      try {
+        await fetch("/api/images", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageURL: uploadURL }),
+        });
+        console.log("ACL configurada com sucesso");
+      } catch (aclError) {
+        console.warn("Erro ao configurar ACL:", aclError);
+        // Continuar mesmo se ACL falhar
+      }
 
       // Normalizar URL e chamar onChange
       const normalizedUrl = normalizeImageUrl(uploadURL);
