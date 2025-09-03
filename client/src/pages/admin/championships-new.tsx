@@ -107,14 +107,17 @@ export default function NewChampionshipPage() {
                         <Input
                           placeholder="Ex: Copa Nordeste 2025"
                           data-testid="input-name"
-                          value={field.value}
+                          value={field.value || ""}
                           onChange={(e) => {
                             console.log("Input onChange:", e.target.value);
                             field.onChange(e.target.value);
                           }}
-                          onBlur={field.onBlur}
-                          name={field.name}
-                          ref={field.ref}
+                          onFocus={(e) => {
+                            console.log("Input focado");
+                            e.target.select();
+                          }}
+                          autoComplete="off"
+                          type="text"
                         />
                       </FormControl>
                       <FormMessage />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
 import AwsS3 from "@uppy/aws-s3";
@@ -26,6 +26,7 @@ export function ImageUploader({
 }: ImageUploaderProps) {
   const [showModal, setShowModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uppy] = useState(() => {
     const uppyInstance = new Uppy({
@@ -111,9 +112,62 @@ export function ImageUploader({
     return googleStorageUrl;
   };
 
+  // Função para upload direto via input file (fallback)
+  const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    console.log("Arquivo selecionado via input:", file.name);
+    setIsUploading(true);
+
+    try {
+      // Obter URL de upload
+      const response = await fetch("/api/objects/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      if (!response.ok) throw new Error("Falha ao obter URL de upload");
+      
+      const { uploadURL } = await response.json();
+      console.log("URL de upload obtida:", uploadURL);
+
+      // Fazer upload do arquivo
+      const uploadResponse = await fetch(uploadURL, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type },
+      });
+
+      if (!uploadResponse.ok) throw new Error("Falha no upload");
+
+      // Normalizar URL e chamar onChange
+      const normalizedUrl = normalizeImageUrl(uploadURL);
+      console.log("URL normalizada:", normalizedUrl);
+      onChange(normalizedUrl);
+      
+    } catch (error) {
+      console.error("Erro no upload:", error);
+    } finally {
+      setIsUploading(false);
+      // Limpar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleUploadClick = () => {
-    console.log("Clique no botão de upload, abrindo modal...");
-    setShowModal(true);
+    console.log("Clique no botão de upload...");
+    
+    // Tentar usar input file nativo primeiro (mais confiável)
+    if (fileInputRef.current) {
+      console.log("Usando input file nativo");
+      fileInputRef.current.click();
+    } else {
+      console.log("Fallback para modal Uppy");
+      setShowModal(true);
+    }
   };
 
   const handleRemove = () => {
@@ -156,6 +210,16 @@ export function ImageUploader({
         </Card>
       )}
 
+      {/* Input file oculto */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileInputChange}
+        className="hidden"
+        data-testid="hidden-file-input"
+      />
+
       {/* Botão de upload */}
       <div className="flex flex-col space-y-2">
         <Button
@@ -185,25 +249,31 @@ export function ImageUploader({
       </div>
 
       {/* Modal de upload */}
-      <DashboardModal
-        uppy={uppy}
-        open={showModal}
-        onRequestClose={() => setShowModal(false)}
-        proudlyDisplayPoweredByUppy={false}
-        locale={{
-          strings: {
-            dropPasteFiles: "Arraste arquivos aqui ou %{browseFiles}",
-            browseFiles: "procure",
-            uploadComplete: "Upload concluído",
-            uploadFailed: "Falha no upload",
-            uploadingXFiles: {
-              0: "Enviando %{smart_count} arquivo",
-              1: "Enviando %{smart_count} arquivos",
+      {showModal && (
+        <DashboardModal
+          uppy={uppy}
+          open={showModal}
+          onRequestClose={() => {
+            console.log("Fechando modal...");
+            setShowModal(false);
+          }}
+          proudlyDisplayPoweredByUppy={false}
+          closeModalOnClickOutside={true}
+          locale={{
+            strings: {
+              dropPasteFiles: "Arraste arquivos aqui ou %{browseFiles}",
+              browseFiles: "procure",
+              uploadComplete: "Upload concluído",
+              uploadFailed: "Falha no upload",
+              uploadingXFiles: {
+                0: "Enviando %{smart_count} arquivo",
+                1: "Enviando %{smart_count} arquivos",
+              },
+              complete: "Concluído",
             },
-            complete: "Concluído",
-          },
-        }}
-      />
+          }}
+        />
+      )}
     </div>
   );
 }
