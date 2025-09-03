@@ -131,8 +131,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createChampionship(insertChampionship: InsertChampionship): Promise<Championship> {
-    const [championship] = await db.insert(championships).values(insertChampionship).returning();
-    return championship;
+    try {
+      console.log("Criando campeonato com dados:", insertChampionship);
+      
+      const result = await db.execute(sql`
+        INSERT INTO championships (name, image, start_date, end_date, created_at) 
+        VALUES (${insertChampionship.name}, ${insertChampionship.image}, ${insertChampionship.startDate}, ${insertChampionship.endDate}, NOW())
+        RETURNING *
+      `);
+      
+      console.log("Campeonato criado com sucesso:", result.rows[0]);
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        startDate: row.start_date,
+        endDate: row.end_date,
+        createdAt: new Date(row.created_at),
+      };
+    } catch (error) {
+      console.error("Erro ao criar campeonato:", error);
+      throw error;
+    }
   }
 
   async updateChampionship(id: string, updateData: Partial<InsertChampionship>): Promise<Championship | undefined> {

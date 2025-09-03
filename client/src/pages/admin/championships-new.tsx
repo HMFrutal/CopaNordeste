@@ -108,14 +108,8 @@ export default function NewChampionshipPage() {
                           placeholder="Ex: Copa Nordeste 2025"
                           data-testid="input-name"
                           value={field.value || ""}
-                          onChange={(e) => {
-                            console.log("Input onChange:", e.target.value);
-                            field.onChange(e.target.value);
-                          }}
-                          onFocus={(e) => {
-                            console.log("Input focado");
-                            e.target.select();
-                          }}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onFocus={(e) => e.target.select()}
                           autoComplete="off"
                           type="text"
                         />
