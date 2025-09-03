@@ -30,7 +30,7 @@ export default function AthletesEditPage() {
 
   const athleteId = params?.id || "";
 
-  const { data: athlete, isLoading: isLoadingAthlete } = useQuery({
+  const { data: athlete, isLoading: isLoadingAthlete } = useQuery<Athlete>({
     queryKey: ["/api/admin/athletes", athleteId],
     enabled: !!athleteId,
   });
@@ -52,14 +52,15 @@ export default function AthletesEditPage() {
 
   // Atualizar formulário quando os dados do atleta carregarem
   useEffect(() => {
-    if (athlete && athlete.name !== undefined) {
+    if (athlete) {
+      const athleteData = athlete as any; // Temporary type assertion
       form.reset({
-        name: athlete.name || "",
-        document: athlete.document || "",
-        image: athlete.image || "",
-        teamId: athlete.teamId || "none",
+        name: athleteData.name || "",
+        document: athleteData.document || "",
+        image: athleteData.image || "",
+        teamId: athleteData.teamId || "none",
       });
-      setImageUrl(athlete.image || "");
+      setImageUrl(athleteData.image || "");
     }
   }, [athlete, form]);
 
