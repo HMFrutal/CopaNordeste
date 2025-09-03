@@ -52,7 +52,7 @@ export default function AthletesEditPage() {
 
   // Atualizar formulário quando os dados do atleta carregarem
   useEffect(() => {
-    if (athlete) {
+    if (athlete && athlete.name !== undefined) {
       form.reset({
         name: athlete.name || "",
         document: athlete.document || "",
@@ -65,10 +65,8 @@ export default function AthletesEditPage() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: InsertAthlete) => {
-      return await apiRequest(`/api/admin/athletes/${athleteId}`, {
-        method: "PUT",
-        body: data,
-      });
+      const response = await apiRequest(`/api/admin/athletes/${athleteId}`, "PUT", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/athletes"] });
@@ -92,7 +90,7 @@ export default function AthletesEditPage() {
     const formattedData = {
       ...data,
       image: imageUrl || null,
-      teamId: data.teamId === "none" ? null : data.teamId || null,
+      teamId: data.teamId === "none" ? undefined : data.teamId || undefined,
     };
     updateMutation.mutate(formattedData);
   };
@@ -232,8 +230,8 @@ export default function AthletesEditPage() {
               <div className="space-y-2">
                 <Label>Foto do Atleta</Label>
                 <ImageUploader
-                  currentImage={imageUrl}
-                  onImageChange={handleImageChange}
+                  value={imageUrl}
+                  onChange={handleImageChange}
                   placeholder="Selecionar foto do atleta"
                 />
                 {imageUrl && (
