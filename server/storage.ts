@@ -70,7 +70,17 @@ export class MemStorage implements IStorage {
 
     sampleTeams.forEach(team => {
       const id = randomUUID();
-      this.teams.set(id, { ...team, id, createdAt: new Date() });
+      this.teams.set(id, { 
+        ...team, 
+        id, 
+        createdAt: new Date(),
+        logo: team.logo || null,
+        points: team.points ?? null,
+        gamesPlayed: team.gamesPlayed ?? null,
+        wins: team.wins ?? null,
+        draws: team.draws ?? null,
+        losses: team.losses ?? null
+      });
     });
 
     // Seed competitions
@@ -84,7 +94,13 @@ export class MemStorage implements IStorage {
     };
 
     const competitionId = randomUUID();
-    this.competitions.set(competitionId, { ...competition, id: competitionId, createdAt: new Date() });
+    this.competitions.set(competitionId, { 
+      ...competition, 
+      id: competitionId, 
+      createdAt: new Date(),
+      description: competition.description || null,
+      isActive: competition.isActive ?? null
+    });
 
     // Seed news
     const sampleNews: InsertNews[] = [
@@ -108,7 +124,14 @@ export class MemStorage implements IStorage {
 
     sampleNews.forEach(newsItem => {
       const id = randomUUID();
-      this.news.set(id, { ...newsItem, id, createdAt: new Date() });
+      this.news.set(id, { 
+        ...newsItem, 
+        id, 
+        createdAt: new Date(),
+        image: newsItem.image || null,
+        excerpt: newsItem.excerpt || null,
+        isPublished: newsItem.isPublished ?? null
+      });
     });
   }
 
@@ -123,7 +146,17 @@ export class MemStorage implements IStorage {
 
   async createTeam(insertTeam: InsertTeam): Promise<Team> {
     const id = randomUUID();
-    const team: Team = { ...insertTeam, id, createdAt: new Date() };
+    const team: Team = { 
+      ...insertTeam, 
+      id, 
+      createdAt: new Date(),
+      logo: insertTeam.logo || null,
+      points: insertTeam.points ?? null,
+      gamesPlayed: insertTeam.gamesPlayed ?? null,
+      wins: insertTeam.wins ?? null,
+      draws: insertTeam.draws ?? null,
+      losses: insertTeam.losses ?? null
+    };
     this.teams.set(id, team);
     return team;
   }
@@ -148,7 +181,13 @@ export class MemStorage implements IStorage {
 
   async createCompetition(insertCompetition: InsertCompetition): Promise<Competition> {
     const id = randomUUID();
-    const competition: Competition = { ...insertCompetition, id, createdAt: new Date() };
+    const competition: Competition = { 
+      ...insertCompetition, 
+      id, 
+      createdAt: new Date(),
+      description: insertCompetition.description || null,
+      isActive: insertCompetition.isActive ?? null
+    };
     this.competitions.set(id, competition);
     return competition;
   }
@@ -168,7 +207,17 @@ export class MemStorage implements IStorage {
 
   async createMatch(insertMatch: InsertMatch): Promise<Match> {
     const id = randomUUID();
-    const match: Match = { ...insertMatch, id, createdAt: new Date() };
+    const match: Match = { 
+      ...insertMatch, 
+      id, 
+      createdAt: new Date(),
+      status: insertMatch.status || null,
+      homeTeamId: insertMatch.homeTeamId || null,
+      awayTeamId: insertMatch.awayTeamId || null,
+      homeScore: insertMatch.homeScore ?? null,
+      awayScore: insertMatch.awayScore ?? null,
+      competitionId: insertMatch.competitionId || null
+    };
     this.matches.set(id, match);
     return match;
   }
@@ -188,7 +237,14 @@ export class MemStorage implements IStorage {
 
   async createNews(insertNews: InsertNews): Promise<News> {
     const id = randomUUID();
-    const news: News = { ...insertNews, id, createdAt: new Date() };
+    const news: News = { 
+      ...insertNews, 
+      id, 
+      createdAt: new Date(),
+      image: insertNews.image || null,
+      excerpt: insertNews.excerpt || null,
+      isPublished: insertNews.isPublished ?? null
+    };
     this.news.set(id, news);
     return news;
   }

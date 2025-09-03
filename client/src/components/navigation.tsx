@@ -37,16 +37,16 @@ export default function Navigation() {
             <div className="ml-10 flex items-baseline space-x-4">
               {navigation.map((item) => (
                 <Link key={item.name} href={item.href}>
-                  <a
+                  <span
                     data-testid={`nav-link-${item.name.toLowerCase().replace(' ', '-')}`}
-                    className={`px-3 py-2 text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
                       location === item.href
                         ? "text-primary"
                         : "text-gray-700 hover:text-primary"
                     }`}
                   >
                     {item.name}
-                  </a>
+                  </span>
                 </Link>
               ))}
             </div>
@@ -70,9 +70,9 @@ export default function Navigation() {
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
               {navigation.map((item) => (
                 <Link key={item.name} href={item.href}>
-                  <a
+                  <span
                     data-testid={`mobile-nav-link-${item.name.toLowerCase().replace(' ', '-')}`}
-                    className={`block px-3 py-2 text-base font-medium transition-colors ${
+                    className={`block px-3 py-2 text-base font-medium transition-colors cursor-pointer ${
                       location === item.href
                         ? "text-primary"
                         : "text-gray-700 hover:text-primary"
@@ -80,7 +80,7 @@ export default function Navigation() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
-                  </a>
+                  </span>
                 </Link>
               ))}
             </div>

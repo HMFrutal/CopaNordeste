@@ -4,7 +4,9 @@ This project is a full-stack web application for managing the "Copa Nordeste 202
 
 # User Preferences
 
-Preferred communication style: Simple, everyday language.
+- **Idioma**: Sempre responder em português brasileiro (PT-BR)
+- **Comunicação**: Linguagem simples e cotidiana
+- **Banco de Dados**: TODO registro de banco de dados deverá ser no SUPABASE
 
 # System Architecture
 
@@ -35,14 +37,15 @@ The API follows REST conventions with endpoints for teams, competitions, matches
 
 ## Data Storage Solutions
 
-The application uses a layered data architecture:
+A aplicação usa uma arquitetura de dados em camadas:
 
-- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
-- **Schema Management**: Drizzle Kit for migrations and schema evolution
-- **Abstraction Layer**: Storage interface pattern allowing for easy switching between storage implementations
-- **Development Storage**: In-memory storage implementation for development and testing
+- **Database**: PostgreSQL via SUPABASE com Drizzle ORM para operações type-safe
+- **Schema Management**: Drizzle Kit para migrações e evolução do schema
+- **Abstraction Layer**: Padrão de interface de storage permitindo fácil troca entre implementações
+- **Development Storage**: Implementação em memória para desenvolvimento e testes
+- **IMPORTANTE**: TODOS os registros de banco de dados DEVEM ser armazenados no SUPABASE
 
-The database schema includes tables for teams, competitions, matches, news articles, and contact submissions with proper relationships and constraints.
+O schema do banco inclui tabelas para times, competições, partidas, artigos de notícias e submissões de contato com relacionamentos e constraints apropriadas.
 
 ## Authentication and Authorization
 
@@ -55,9 +58,9 @@ Currently, the application does not implement authentication, but the architectu
 # External Dependencies
 
 ## Database and ORM
-- **Neon Database**: Serverless PostgreSQL database hosting
-- **Drizzle ORM**: Type-safe database operations and query building
-- **Drizzle Kit**: Database migration management and schema evolution
+- **SUPABASE**: Plataforma de banco PostgreSQL para todos os dados do projeto
+- **Drizzle ORM**: Operações de banco type-safe e construção de queries
+- **Drizzle Kit**: Gerenciamento de migrações e evolução do schema
 
 ## Frontend Libraries
 - **React Query**: Server state management and data fetching with caching
