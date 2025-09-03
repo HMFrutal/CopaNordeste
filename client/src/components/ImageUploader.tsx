@@ -27,8 +27,8 @@ export function ImageUploader({
   const [showModal, setShowModal] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [uppy] = useState(() =>
-    new Uppy({
+  const [uppy] = useState(() => {
+    const uppyInstance = new Uppy({
       restrictions: {
         maxNumberOfFiles: 1,
         maxFileSize,
@@ -38,7 +38,8 @@ export function ImageUploader({
     })
       .use(AwsS3, {
         shouldUseMultipart: false,
-        getUploadParameters: async () => {
+        getUploadParameters: async (file) => {
+          console.log("Iniciando upload para arquivo:", file.name);
           try {
             const response = await fetch("/api/objects/upload", {
               method: "POST",
@@ -52,8 +53,10 @@ export function ImageUploader({
             }
             
             const data = await response.json();
+            console.log("URL de upload obtida:", data.uploadURL);
+            
             return {
-              method: "PUT",
+              method: "PUT" as const,
               url: data.uploadURL,
             };
           } catch (error) {
@@ -63,9 +66,11 @@ export function ImageUploader({
         },
       })
       .on("upload", () => {
+        console.log("Upload iniciado");
         setIsUploading(true);
       })
       .on("complete", (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+        console.log("Upload completo:", result);
         setIsUploading(false);
         setShowModal(false);
         
@@ -76,15 +81,18 @@ export function ImageUploader({
           if (imageUrl) {
             // Converter URL do Google Storage para URL da aplicação
             const normalizedUrl = normalizeImageUrl(imageUrl);
+            console.log("URL normalizada:", normalizedUrl);
             onChange(normalizedUrl);
           }
         }
       })
       .on("error", (error) => {
-        setIsUploading(false);
         console.error("Erro no upload:", error);
-      })
-  );
+        setIsUploading(false);
+      });
+      
+    return uppyInstance;
+  });
 
   const normalizeImageUrl = (googleStorageUrl: string): string => {
     // Converter URL do Google Storage para URL relativa da aplicação
