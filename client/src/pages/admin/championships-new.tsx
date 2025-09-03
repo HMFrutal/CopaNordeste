@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ImageUploader } from "@/components/ImageUploader";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insertChampionshipSchema, type InsertChampionship } from "@shared/schema";
@@ -122,14 +123,14 @@ export default function NewChampionshipPage() {
                     <FormItem>
                       <FormLabel className="flex items-center space-x-2">
                         <Image className="h-4 w-4" />
-                        <span>URL da Imagem</span>
+                        <span>Imagem do Campeonato</span>
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="https://exemplo.com/imagem.jpg"
-                          data-testid="input-image"
-                          {...field}
+                        <ImageUploader
                           value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder="Carregar imagem do campeonato"
+                          data-testid="image-uploader"
                         />
                       </FormControl>
                       <FormMessage />

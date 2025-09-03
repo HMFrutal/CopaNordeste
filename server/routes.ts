@@ -9,6 +9,7 @@ import {
   insertRefereeSchema
 } from "@shared/schema";
 import { z } from "zod";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Teams routes
@@ -137,7 +138,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/championships/:id", async (req, res) => {
     try {
-      const validatedData = insertChampionshipSchema.partial().parse(req.body);
+      // Para update, vamos aceitar campos parciais
+      const partialSchema = z.object({
+        name: z.string().optional(),
+        image: z.string().nullable().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }).refine(
+        (data) => {
+          if (data.startDate && data.endDate) {
+            return new Date(data.startDate) <= new Date(data.endDate);
+          }
+          return true;
+        },
+        {
+          message: "A data de início deve ser anterior ou igual à data de fim",
+          path: ["endDate"],
+        }
+      );
+      
+      const validatedData = partialSchema.parse(req.body);
       const championship = await storage.updateChampionship(req.params.id, validatedData);
       if (!championship) {
         return res.status(404).json({ message: "Campeonato não encontrado" });
@@ -383,6 +403,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Time removido do campeonato com sucesso" });
     } catch (error) {
       res.status(500).json({ message: "Falha ao remover time do campeonato" });
+    }
+  });
+
+  // Object Storage routes
+  const objectStorageService = new ObjectStorageService();
+
+  // Endpoint para obter URL de upload
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Erro ao gerar URL de upload:", error);
+      res.status(500).json({ error: "Falha ao gerar URL de upload" });
+    }
+  });
+
+  // Endpoint para servir objetos/imagens
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      await objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Erro ao acessar objeto:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
     }
   });
 

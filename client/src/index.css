@@ -92,3 +92,32 @@
     transparent 16px
   );
 }
+
+/* Uppy CSS Styles */
+.uppy-Dashboard {
+  font-family: var(--font-sans) !important;
+}
+
+.uppy-Dashboard-inner {
+  border-radius: var(--radius) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.uppy-Dashboard-AddFiles {
+  border: 2px dashed hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  background: hsl(var(--background)) !important;
+}
+
+.uppy-Dashboard-AddFiles:hover {
+  border-color: hsl(var(--primary)) !important;
+  background: hsl(var(--accent)) !important;
+}
+
+.uppy-Dashboard-AddFiles-title {
+  color: hsl(var(--foreground)) !important;
+}
+
+.uppy-Dashboard-note {
+  color: hsl(var(--muted-foreground)) !important;
+}
