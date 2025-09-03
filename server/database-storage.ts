@@ -312,10 +312,10 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("Criando time com dados:", insertAdminTeam);
       
-      // Usar apenas nome, cidade e estado temporariamente para isolar o problema
+      // Apenas 4 campos: nome, imagem, responsável, telefone
       const result = await db.execute(sql`
-        INSERT INTO admin_teams (name, city, state, created_at, updated_at) 
-        VALUES (${insertAdminTeam.name}, ${insertAdminTeam.city || null}, ${insertAdminTeam.state || null}, NOW(), NOW())
+        INSERT INTO admin_teams (name, image, responsible, phone, created_at, updated_at) 
+        VALUES (${insertAdminTeam.name}, ${insertAdminTeam.image || null}, ${insertAdminTeam.responsible || null}, ${insertAdminTeam.phone || null}, NOW(), NOW())
         RETURNING *
       `);
       console.log("Time criado com sucesso:", result.rows[0]);
@@ -325,11 +325,8 @@ export class DatabaseStorage implements IStorage {
         id: row.id,
         name: row.name,
         image: row.image || null,
-        rg: row.rg || null,
-        city: row.city,
-        state: row.state,
+        responsible: row.responsible || null,
         phone: row.phone || null,
-        email: row.email || null,
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
       };

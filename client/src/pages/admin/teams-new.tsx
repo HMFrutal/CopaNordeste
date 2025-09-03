@@ -1,4 +1,3 @@
-// Removido import não usado
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,11 +32,8 @@ export default function TeamsNewPage() {
     defaultValues: {
       name: "",
       image: "",
-      rg: "",
-      city: "",
-      state: "",
+      responsible: "",
       phone: "",
-      email: "",
     },
   });
 
@@ -101,10 +97,10 @@ export default function TeamsNewPage() {
             </div>
           </div>
 
-          {/* Formulário */}
+          {/* Formulário Simplificado */}
           <Card>
             <CardHeader>
-              <CardTitle>Informações do Time</CardTitle>
+              <CardTitle>Informações do Time (4 campos)</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -118,7 +114,7 @@ export default function TeamsNewPage() {
                         <FormLabel>Nome do Time *</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Ex: Atlético Nordeste FC"
+                            placeholder="Ex: Juventus FC"
                             {...field}
                             data-testid="input-team-name"
                           />
@@ -154,118 +150,49 @@ export default function TeamsNewPage() {
                     )}
                   />
 
-                  {/* RG/CNPJ */}
+                  {/* Responsável */}
                   <FormField
                     control={form.control}
-                    name="rg"
+                    name="responsible"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>RG/CNPJ</FormLabel>
+                        <FormLabel>Responsável</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Ex: 12.345.678/0001-90"
+                            placeholder="Ex: João Silva"
                             {...field}
-                            data-testid="input-team-rg"
+                            data-testid="input-team-responsible"
                           />
                         </FormControl>
                         <FormDescription>
-                          Documento de identificação do time (RG do responsável ou CNPJ)
+                          Nome do responsável pelo time
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  {/* Cidade e Estado em linha */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Cidade</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ex: Recife"
-                              {...field}
-                              data-testid="input-team-city"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Cidade sede do time
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="state"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Estado</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ex: PE"
-                              {...field}
-                              data-testid="input-team-state"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Sigla do estado
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Telefone e Email em linha */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Telefone</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ex: (81) 98765-4321"
-                              {...field}
-                              data-testid="input-team-phone"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Telefone de contato do time
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              placeholder="Ex: contato@atletico.com.br"
-                              {...field}
-                              data-testid="input-team-email"
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Email oficial do time
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  {/* Telefone */}
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Telefone</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Ex: (81) 98765-4321"
+                            {...field}
+                            data-testid="input-team-phone"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Telefone de contato do time
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   {/* Botões de ação */}
                   <div className="flex justify-end space-x-4 pt-6">

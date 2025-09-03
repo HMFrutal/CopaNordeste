@@ -72,16 +72,13 @@ export const championships = pgTable("championships", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Nova tabela: Times administrativos (diferente da tabela teams existente)
+// Nova tabela: Times administrativos (4 campos simples)
 export const adminTeams = pgTable("admin_teams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  image: text("image"),
-  rg: text("rg"), // RG/CNPJ do time
-  city: text("city"), // Cidade do time
-  state: text("state"), // Estado do time
-  phone: text("phone"), // Telefone/contato
-  email: text("email"), // Email do time
+  name: text("name").notNull(), // Nome do time
+  image: text("image"), // URL da imagem do time
+  responsible: text("responsible"), // Nome do responsável
+  phone: text("phone"), // Telefone de contato
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -158,7 +155,8 @@ export const insertAdminTeamSchema = createInsertSchema(adminTeams).omit({
   updatedAt: true,
 }).extend({
   name: z.string().min(1, "Nome do time é obrigatório"),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
+  responsible: z.string().optional(),
+  phone: z.string().optional(),
 });
 
 export const insertAthleteSchema = createInsertSchema(athletes).omit({
