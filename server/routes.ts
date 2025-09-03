@@ -409,6 +409,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Teams routes
+  app.get("/api/admin/teams", async (req, res) => {
+    try {
+      console.log("Buscando times...");
+      const teams = await storage.getAdminTeams();
+      console.log("Times encontrados:", teams.length);
+      res.json(teams);
+    } catch (error) {
+      console.error("Erro ao buscar times:", error);
+      res.status(500).json({ message: "Falha ao buscar times" });
+    }
+  });
+
+  app.get("/api/admin/teams/:id", async (req, res) => {
+    try {
+      const team = await storage.getAdminTeam(req.params.id);
+      if (!team) {
+        return res.status(404).json({ message: "Time não encontrado" });
+      }
+      res.json(team);
+    } catch (error) {
+      res.status(500).json({ message: "Falha ao buscar time" });
+    }
+  });
+
+  app.post("/api/admin/teams", async (req, res) => {
+    try {
+      console.log("Dados recebidos para criar time:", req.body);
+      
+      // Validar dados
+      const validatedData = insertAdminTeamSchema.parse(req.body);
+      const team = await storage.createAdminTeam(validatedData);
+      console.log("Time criado:", team);
+      
+      res.status(201).json(team);
+    } catch (error) {
+      console.error("Erro ao criar time:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Dados inválidos", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Falha ao criar time" });
+    }
+  });
+
+  app.put("/api/admin/teams/:id", async (req, res) => {
+    try {
+      const validatedData = insertAdminTeamSchema.partial().parse(req.body);
+      const team = await storage.updateAdminTeam(req.params.id, validatedData);
+      if (!team) {
+        return res.status(404).json({ message: "Time não encontrado" });
+      }
+      res.json(team);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Dados inválidos", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Falha ao atualizar time" });
+    }
+  });
+
+  app.delete("/api/admin/teams/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteAdminTeam(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: "Time não encontrado" });
+      }
+      res.json({ message: "Time excluído com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: "Falha ao excluir time" });
+    }
+  });
+
   // Object Storage routes
   const objectStorageService = new ObjectStorageService();
 

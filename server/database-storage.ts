@@ -167,30 +167,7 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
-  // Admin Teams methods
-  async getAdminTeams(): Promise<AdminTeam[]> {
-    return await db.select().from(adminTeams);
-  }
-
-  async getAdminTeam(id: string): Promise<AdminTeam | undefined> {
-    const [team] = await db.select().from(adminTeams).where(eq(adminTeams.id, id));
-    return team;
-  }
-
-  async createAdminTeam(insertAdminTeam: InsertAdminTeam): Promise<AdminTeam> {
-    const [team] = await db.insert(adminTeams).values(insertAdminTeam).returning();
-    return team;
-  }
-
-  async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
-    const [team] = await db.update(adminTeams).set(updateData).where(eq(adminTeams.id, id)).returning();
-    return team;
-  }
-
-  async deleteAdminTeam(id: string): Promise<boolean> {
-    const result = await db.delete(adminTeams).where(eq(adminTeams.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
+  // Métodos AdminTeams removidos - implementados no final do arquivo
 
   // Athletes methods
   async getAthletes(): Promise<Athlete[]> {
@@ -278,5 +255,99 @@ export class DatabaseStorage implements IStorage {
         )
       );
     return (result.rowCount ?? 0) > 0;
+  }
+
+  // Admin Teams methods - implementação completa usando SQL direto para contornar problema Drizzle
+  async getAdminTeams(): Promise<AdminTeam[]> {
+    try {
+      console.log("Executando query para buscar times...");
+      // Usar query SQL direta temporariamente para contornar problema  
+      const result = await db.execute(sql`SELECT * FROM admin_teams ORDER BY created_at DESC`);
+      console.log("Query SQL executada com sucesso, resultado:", result.rows);
+      
+      // Mapear resultado para o tipo correto
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        rg: row.rg,
+        city: row.city,
+        state: row.state,
+        phone: row.phone,
+        email: row.email,
+        createdAt: new Date(row.created_at),
+        updatedAt: row.updated_at ? new Date(row.updated_at) : null,
+      }));
+    } catch (error) {
+      console.error("Erro na query de times:", error);
+      throw error;
+    }
+  }
+
+  async getAdminTeam(id: string): Promise<AdminTeam | undefined> {
+    try {
+      const [team] = await db.select().from(adminTeams).where(eq(adminTeams.id, id));
+      return team;
+    } catch (error) {
+      console.error("Erro ao buscar time:", error);
+      throw error;
+    }
+  }
+
+  async createAdminTeam(insertAdminTeam: InsertAdminTeam): Promise<AdminTeam> {
+    try {
+      console.log("Criando time com dados:", insertAdminTeam);
+      
+      const result = await db.execute(sql`
+        INSERT INTO admin_teams (name, image, rg, city, state, phone, email, created_at, updated_at) 
+        VALUES (${insertAdminTeam.name}, ${insertAdminTeam.image || null}, ${insertAdminTeam.rg || null}, ${insertAdminTeam.city || null}, ${insertAdminTeam.state || null}, ${insertAdminTeam.phone || null}, ${insertAdminTeam.email || null}, NOW(), NOW())
+        RETURNING *
+      `);
+      
+      console.log("Time criado com sucesso:", result.rows[0]);
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        rg: row.rg,
+        city: row.city,
+        state: row.state,
+        phone: row.phone,
+        email: row.email,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      };
+    } catch (error) {
+      console.error("Erro ao criar time:", error);
+      throw error;
+    }
+  }
+
+  async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
+    try {
+      const [team] = await db.update(adminTeams)
+        .set({
+          ...updateData,
+          updatedAt: new Date(),
+        })
+        .where(eq(adminTeams.id, id))
+        .returning();
+      return team;
+    } catch (error) {
+      console.error("Erro ao atualizar time:", error);
+      throw error;
+    }
+  }
+
+  async deleteAdminTeam(id: string): Promise<boolean> {
+    try {
+      const result = await db.delete(adminTeams).where(eq(adminTeams.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (error) {
+      console.error("Erro ao deletar time:", error);
+      throw error;
+    }
   }
 }

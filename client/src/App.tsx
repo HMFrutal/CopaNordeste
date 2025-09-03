@@ -17,6 +17,9 @@ import ChampionshipsPage from "@/pages/admin/championships";
 import NewChampionshipPage from "@/pages/admin/championships-new";
 import ChampionshipDetailsPage from "@/pages/admin/championship-details";
 import ChampionshipEditPage from "@/pages/admin/championship-edit";
+import TeamsPage from "@/pages/admin/teams";
+import TeamsNewPage from "@/pages/admin/teams-new";
+import TeamsEditPage from "@/pages/admin/teams-edit";
 import AdminLogin from "@/pages/admin/login";
 
 function Router() {
@@ -34,6 +37,11 @@ function Router() {
       <Route path="/admin/championships/:id/edit" component={() => <ProtectedRoute><ChampionshipEditPage /></ProtectedRoute>} />
       <Route path="/admin/championships/:id" component={() => <ProtectedRoute><ChampionshipDetailsPage /></ProtectedRoute>} />
       <Route path="/admin/championships" component={() => <ProtectedRoute><ChampionshipsPage /></ProtectedRoute>} />
+      
+      {/* Admin Teams Routes */}
+      <Route path="/admin/teams/new" component={() => <ProtectedRoute><TeamsNewPage /></ProtectedRoute>} />
+      <Route path="/admin/teams/:id/edit" component={() => <ProtectedRoute><TeamsEditPage /></ProtectedRoute>} />
+      <Route path="/admin/teams" component={() => <ProtectedRoute><TeamsPage /></ProtectedRoute>} />
       <Route component={NotFound} />
     </Switch>
   );
