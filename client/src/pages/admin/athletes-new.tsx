@@ -38,10 +38,8 @@ export default function AthletesNewPage() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertAthlete) => {
-      return await apiRequest("/api/admin/athletes", {
-        method: "POST",
-        body: data,
-      });
+      const response = await apiRequest("/api/admin/athletes", "POST", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/athletes"] });
@@ -148,8 +146,8 @@ export default function AthletesNewPage() {
               <div className="space-y-2">
                 <Label>Foto do Atleta</Label>
                 <ImageUploader
-                  currentImage={imageUrl}
-                  onImageChange={handleImageChange}
+                  value={imageUrl}
+                  onChange={handleImageChange}
                   placeholder="Selecionar foto do atleta"
                 />
                 {imageUrl && (
@@ -176,7 +174,7 @@ export default function AthletesNewPage() {
                 <Button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="bg-navy-600 hover:bg-navy-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   data-testid="button-save"
                 >
                   {createMutation.isPending ? (
