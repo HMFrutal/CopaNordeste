@@ -37,11 +37,11 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Navegação</h4>
             <ul className="space-y-2 text-blue-100">
-              <li><Link href="/"><a className="hover:text-white transition-colors" data-testid="footer-link-home">Início</a></Link></li>
-              <li><Link href="/competitions"><a className="hover:text-white transition-colors" data-testid="footer-link-competitions">Competições</a></Link></li>
-              <li><Link href="/teams"><a className="hover:text-white transition-colors" data-testid="footer-link-teams">Times</a></Link></li>
-              <li><Link href="/news"><a className="hover:text-white transition-colors" data-testid="footer-link-news">Notícias</a></Link></li>
-              <li><Link href="/gallery"><a className="hover:text-white transition-colors" data-testid="footer-link-gallery">Galeria</a></Link></li>
+              <li><Link href="/"><span className="hover:text-white transition-colors cursor-pointer" data-testid="footer-link-home">Início</span></Link></li>
+              <li><Link href="/competitions"><span className="hover:text-white transition-colors cursor-pointer" data-testid="footer-link-competitions">Competições</span></Link></li>
+              <li><Link href="/teams"><span className="hover:text-white transition-colors cursor-pointer" data-testid="footer-link-teams">Times</span></Link></li>
+              <li><Link href="/news"><span className="hover:text-white transition-colors cursor-pointer" data-testid="footer-link-news">Notícias</span></Link></li>
+              <li><Link href="/gallery"><span className="hover:text-white transition-colors cursor-pointer" data-testid="footer-link-gallery">Galeria</span></Link></li>
             </ul>
           </div>
 

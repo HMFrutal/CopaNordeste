@@ -10,6 +10,8 @@ import Competitions from "@/pages/competitions";
 import News from "@/pages/news";
 import Gallery from "@/pages/gallery";
 import Contact from "@/pages/contact";
+import AdminDashboard from "@/pages/admin";
+import ChampionshipsPage from "@/pages/admin/championships";
 
 function Router() {
   return (
@@ -20,6 +22,8 @@ function Router() {
       <Route path="/news" component={News} />
       <Route path="/gallery" component={Gallery} />
       <Route path="/contact" component={Contact} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/championships" component={ChampionshipsPage} />
       <Route component={NotFound} />
     </Switch>
   );

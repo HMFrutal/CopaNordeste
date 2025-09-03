@@ -8,7 +8,16 @@ import {
   type News,
   type InsertNews,
   type Contact,
-  type InsertContact
+  type InsertContact,
+  type Championship,
+  type InsertChampionship,
+  type AdminTeam,
+  type InsertAdminTeam,
+  type Athlete,
+  type InsertAthlete,
+  type Referee,
+  type InsertReferee,
+  type ChampionshipTeam
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -39,6 +48,40 @@ export interface IStorage {
   // Contacts
   getContacts(): Promise<Contact[]>;
   createContact(contact: InsertContact): Promise<Contact>;
+
+  // Championships
+  getChampionships(): Promise<Championship[]>;
+  getChampionship(id: string): Promise<Championship | undefined>;
+  createChampionship(championship: InsertChampionship): Promise<Championship>;
+  updateChampionship(id: string, championship: Partial<InsertChampionship>): Promise<Championship | undefined>;
+  deleteChampionship(id: string): Promise<boolean>;
+
+  // Admin Teams
+  getAdminTeams(): Promise<AdminTeam[]>;
+  getAdminTeam(id: string): Promise<AdminTeam | undefined>;
+  createAdminTeam(team: InsertAdminTeam): Promise<AdminTeam>;
+  updateAdminTeam(id: string, team: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined>;
+  deleteAdminTeam(id: string): Promise<boolean>;
+
+  // Athletes
+  getAthletes(): Promise<Athlete[]>;
+  getAthletesByTeam(teamId: string): Promise<Athlete[]>;
+  getAthlete(id: string): Promise<Athlete | undefined>;
+  createAthlete(athlete: InsertAthlete): Promise<Athlete>;
+  updateAthlete(id: string, athlete: Partial<InsertAthlete>): Promise<Athlete | undefined>;
+  deleteAthlete(id: string): Promise<boolean>;
+
+  // Referees
+  getReferees(): Promise<Referee[]>;
+  getReferee(id: string): Promise<Referee | undefined>;
+  createReferee(referee: InsertReferee): Promise<Referee>;
+  updateReferee(id: string, referee: Partial<InsertReferee>): Promise<Referee | undefined>;
+  deleteReferee(id: string): Promise<boolean>;
+
+  // Championship Teams relationships
+  getChampionshipTeams(championshipId: string): Promise<AdminTeam[]>;
+  addTeamToChampionship(championshipId: string, teamId: string): Promise<ChampionshipTeam>;
+  removeTeamFromChampionship(championshipId: string, teamId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -260,6 +303,58 @@ export class MemStorage implements IStorage {
     this.contacts.set(id, contact);
     return contact;
   }
+
+  // Métodos administrativos (implementação stub para compatibilidade)
+  async getChampionships(): Promise<Championship[]> { return []; }
+  async getChampionship(id: string): Promise<Championship | undefined> { return undefined; }
+  async createChampionship(championship: InsertChampionship): Promise<Championship> { 
+    throw new Error("Use DatabaseStorage for admin features"); 
+  }
+  async updateChampionship(id: string, championship: Partial<InsertChampionship>): Promise<Championship | undefined> { 
+    return undefined; 
+  }
+  async deleteChampionship(id: string): Promise<boolean> { return false; }
+
+  async getAdminTeams(): Promise<AdminTeam[]> { return []; }
+  async getAdminTeam(id: string): Promise<AdminTeam | undefined> { return undefined; }
+  async createAdminTeam(team: InsertAdminTeam): Promise<AdminTeam> { 
+    throw new Error("Use DatabaseStorage for admin features"); 
+  }
+  async updateAdminTeam(id: string, team: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> { 
+    return undefined; 
+  }
+  async deleteAdminTeam(id: string): Promise<boolean> { return false; }
+
+  async getAthletes(): Promise<Athlete[]> { return []; }
+  async getAthletesByTeam(teamId: string): Promise<Athlete[]> { return []; }
+  async getAthlete(id: string): Promise<Athlete | undefined> { return undefined; }
+  async createAthlete(athlete: InsertAthlete): Promise<Athlete> { 
+    throw new Error("Use DatabaseStorage for admin features"); 
+  }
+  async updateAthlete(id: string, athlete: Partial<InsertAthlete>): Promise<Athlete | undefined> { 
+    return undefined; 
+  }
+  async deleteAthlete(id: string): Promise<boolean> { return false; }
+
+  async getReferees(): Promise<Referee[]> { return []; }
+  async getReferee(id: string): Promise<Referee | undefined> { return undefined; }
+  async createReferee(referee: InsertReferee): Promise<Referee> { 
+    throw new Error("Use DatabaseStorage for admin features"); 
+  }
+  async updateReferee(id: string, referee: Partial<InsertReferee>): Promise<Referee | undefined> { 
+    return undefined; 
+  }
+  async deleteReferee(id: string): Promise<boolean> { return false; }
+
+  async getChampionshipTeams(championshipId: string): Promise<AdminTeam[]> { return []; }
+  async addTeamToChampionship(championshipId: string, teamId: string): Promise<ChampionshipTeam> { 
+    throw new Error("Use DatabaseStorage for admin features"); 
+  }
+  async removeTeamFromChampionship(championshipId: string, teamId: string): Promise<boolean> { 
+    return false; 
+  }
 }
 
-export const storage = new MemStorage();
+// Importar e usar o DatabaseStorage
+import { DatabaseStorage } from "./database-storage";
+export const storage = new DatabaseStorage();
