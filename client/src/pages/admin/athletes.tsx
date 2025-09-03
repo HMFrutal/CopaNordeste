@@ -23,15 +23,14 @@ export default function AthletesPage() {
   const [selectedAthlete, setSelectedAthlete] = useState<Athlete | null>(null);
   const [location, setLocation] = useLocation();
 
-  const { data: athletes = [], isLoading } = useQuery({
+  const { data: athletes = [], isLoading } = useQuery<Athlete[]>({
     queryKey: ["/api/admin/athletes"],
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/admin/athletes/${id}`, {
-        method: "DELETE",
-      });
+      const response = await apiRequest(`/api/admin/athletes/${id}`, "DELETE");
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/athletes"] });
@@ -40,7 +39,7 @@ export default function AthletesPage() {
     },
   });
 
-  const filteredAthletes = athletes.filter((athlete: Athlete) =>
+  const filteredAthletes = athletes.filter((athlete) =>
     athlete.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (athlete.document && athlete.document.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -114,7 +113,7 @@ export default function AthletesPage() {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredAthletes.map((athlete: Athlete) => (
+              {filteredAthletes.map((athlete) => (
                 <Card key={athlete.id} className="hover:shadow-md transition-shadow" data-testid={`card-athlete-${athlete.id}`}>
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
