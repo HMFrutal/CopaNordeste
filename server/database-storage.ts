@@ -360,9 +360,14 @@ export class DatabaseStorage implements IStorage {
 
   async getAthlete(id: string): Promise<Athlete | undefined> {
     try {
+      console.log("Buscando atleta com ID:", id);
       const [athlete] = await db.select().from(athletes).where(eq(athletes.id, id));
-      if (!athlete) return undefined;
+      if (!athlete) {
+        console.log("Atleta não encontrado");
+        return undefined;
+      }
       
+      console.log("Atleta encontrado:", athlete);
       return {
         id: athlete.id,
         name: athlete.name,
