@@ -34,6 +34,19 @@
   --font-sans: Inter, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
+  
+  /* Copa Nordeste Colors */
+  --navy: hsl(214, 84%, 11%);
+  --navy-50: hsl(214, 84%, 97%);
+  --navy-100: hsl(214, 84%, 92%);
+  --navy-200: hsl(214, 84%, 84%);
+  --navy-300: hsl(214, 84%, 71%);
+  --navy-400: hsl(214, 84%, 55%);
+  --navy-500: hsl(214, 84%, 39%);
+  --navy-600: hsl(214, 84%, 27%);
+  --navy-700: hsl(214, 84%, 19%);
+  --navy-800: hsl(214, 84%, 14%);
+  --navy-900: hsl(214, 84%, 11%);
   --radius: 0.5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(221 83% 53% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(221 83% 53% / 0.00);

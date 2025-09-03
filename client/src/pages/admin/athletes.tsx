@@ -72,7 +72,7 @@ export default function AthletesPage() {
         </div>
         <Button
           onClick={() => setLocation("/admin/athletes/new")}
-          className="bg-navy-600 hover:bg-navy-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white"
           data-testid="button-new-athlete"
         >
           <Plus className="h-4 w-4 mr-2" />
