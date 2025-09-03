@@ -157,9 +157,9 @@ export default function ChampionshipsPage() {
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                       <Calendar className="h-4 w-4 mr-2" />
                       <span>
-                        {new Date(championship.startDate).toLocaleDateString('pt-BR')} - 
+                        {championship.startDate.split('-').reverse().join('/')} - 
                         {championship.endDate 
-                          ? new Date(championship.endDate).toLocaleDateString('pt-BR')
+                          ? championship.endDate.split('-').reverse().join('/')
                           : ' Em andamento'
                         }
                       </span>
