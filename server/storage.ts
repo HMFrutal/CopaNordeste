@@ -328,6 +328,7 @@ export class MemStorage implements IStorage {
 
   async getAthletes(): Promise<Athlete[]> { return []; }
   async getAthlete(id: string): Promise<Athlete | undefined> { return undefined; }
+  async getAthletesByTeam(teamId: string): Promise<Athlete[]> { return []; }
   async createAthlete(athlete: InsertAthlete): Promise<Athlete> { 
     throw new Error("Use DatabaseStorage for admin features"); 
   }

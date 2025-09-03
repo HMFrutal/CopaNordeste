@@ -1,43 +1,63 @@
-import { eq, and, sql } from "drizzle-orm";
-import { db } from "./db";
 import { 
-  teams, competitions, matches, news, contacts,
-  championships, adminTeams, athletes, referees, championshipTeams,
-  type Team, type InsertTeam, 
-  type Competition, type InsertCompetition,
-  type Match, type InsertMatch,
-  type News, type InsertNews,
-  type Contact, type InsertContact,
-  type Championship, type InsertChampionship,
-  type AdminTeam, type InsertAdminTeam,
-  type Athlete, type InsertAthlete,
-  type Referee, type InsertReferee,
-  type ChampionshipTeam, type InsertChampionshipTeam
+  type Team, 
+  type InsertTeam, 
+  type Competition, 
+  type InsertCompetition,
+  type Match,
+  type InsertMatch,
+  type News,
+  type InsertNews,
+  type Contact,
+  type InsertContact,
+  type Championship,
+  type InsertChampionship,
+  type AdminTeam,
+  type InsertAdminTeam,
+  type Athlete,
+  type InsertAthlete,
+  type Referee,
+  type InsertReferee,
+  type ChampionshipTeam,
+  type InsertChampionshipTeam
 } from "@shared/schema";
 import { IStorage } from "./storage";
+import { db } from "./db";
+import { 
+  teams as teamsTable, 
+  competitions, 
+  matches, 
+  news, 
+  contacts, 
+  championships,
+  adminTeams,
+  athletes,
+  referees,
+  championshipTeams
+} from "@shared/schema";
+import { eq, and, sql } from "drizzle-orm";
 
 export class DatabaseStorage implements IStorage {
-  // Teams methods (implementações existentes)
+  // Teams
   async getTeams(): Promise<Team[]> {
-    return await db.select().from(teams);
+    return await db.select().from(teamsTable);
   }
 
   async getTeam(id: string): Promise<Team | undefined> {
-    const [team] = await db.select().from(teams).where(eq(teams.id, id));
+    const [team] = await db.select().from(teamsTable).where(eq(teamsTable.id, id));
     return team;
   }
 
-  async createTeam(insertTeam: InsertTeam): Promise<Team> {
-    const [team] = await db.insert(teams).values(insertTeam).returning();
-    return team;
+  async createTeam(team: InsertTeam): Promise<Team> {
+    const [newTeam] = await db.insert(teamsTable).values(team).returning();
+    return newTeam;
   }
 
-  async updateTeam(id: string, updateData: Partial<InsertTeam>): Promise<Team | undefined> {
-    const [team] = await db.update(teams).set(updateData).where(eq(teams.id, id)).returning();
-    return team;
+  async updateTeam(id: string, team: Partial<InsertTeam>): Promise<Team | undefined> {
+    const [updated] = await db.update(teamsTable).set(team).where(eq(teamsTable.id, id)).returning();
+    return updated;
   }
 
-  // Competitions methods (implementações existentes)
+  // Competitions
   async getCompetitions(): Promise<Competition[]> {
     return await db.select().from(competitions);
   }
@@ -47,12 +67,12 @@ export class DatabaseStorage implements IStorage {
     return competition;
   }
 
-  async createCompetition(insertCompetition: InsertCompetition): Promise<Competition> {
-    const [competition] = await db.insert(competitions).values(insertCompetition).returning();
-    return competition;
+  async createCompetition(competition: InsertCompetition): Promise<Competition> {
+    const [newCompetition] = await db.insert(competitions).values(competition).returning();
+    return newCompetition;
   }
 
-  // Matches methods (implementações existentes)
+  // Matches
   async getMatches(): Promise<Match[]> {
     return await db.select().from(matches);
   }
@@ -66,14 +86,18 @@ export class DatabaseStorage implements IStorage {
     return match;
   }
 
-  async createMatch(insertMatch: InsertMatch): Promise<Match> {
-    const [match] = await db.insert(matches).values(insertMatch).returning();
-    return match;
+  async createMatch(match: InsertMatch): Promise<Match> {
+    const [newMatch] = await db.insert(matches).values(match).returning();
+    return newMatch;
   }
 
-  // News methods (implementações existentes)
+  // News
   async getNews(): Promise<News[]> {
     return await db.select().from(news);
+  }
+
+  async getPublishedNews(): Promise<News[]> {
+    return await db.select().from(news).where(eq(news.published, true));
   }
 
   async getNewsById(id: string): Promise<News | undefined> {
@@ -81,46 +105,40 @@ export class DatabaseStorage implements IStorage {
     return newsItem;
   }
 
-  async getPublishedNews(): Promise<News[]> {
-    return await db.select().from(news).where(eq(news.isPublished, true));
+  async createNews(newsData: InsertNews): Promise<News> {
+    const [newNews] = await db.insert(news).values(newsData).returning();
+    return newNews;
   }
 
-  async createNews(insertNews: InsertNews): Promise<News> {
-    const [newsItem] = await db.insert(news).values(insertNews).returning();
-    return newsItem;
+  async updateNews(id: string, newsData: Partial<InsertNews>): Promise<News | undefined> {
+    const [updated] = await db.update(news).set(newsData).where(eq(news.id, id)).returning();
+    return updated;
   }
 
-  // Contacts methods (implementações existentes)
+  async deleteNews(id: string): Promise<boolean> {
+    const result = await db.delete(news).where(eq(news.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Contacts
+  async createContact(contact: InsertContact): Promise<Contact> {
+    const [newContact] = await db.insert(contacts).values(contact).returning();
+    return newContact;
+  }
+
   async getContacts(): Promise<Contact[]> {
     return await db.select().from(contacts);
   }
 
-  async createContact(insertContact: InsertContact): Promise<Contact> {
-    const [contact] = await db.insert(contacts).values(insertContact).returning();
-    return contact;
-  }
-
-  // ====== NOVAS IMPLEMENTAÇÕES ADMINISTRATIVAS ======
-
-  // Championships methods
+  // Championships
   async getChampionships(): Promise<Championship[]> {
     try {
-      console.log("Executando query para buscar campeonatos...");
-      // Usar query SQL direta temporariamente para contornar problema
-      const result = await db.execute(sql`SELECT * FROM championships ORDER BY created_at DESC`);
-      console.log("Query SQL executada com sucesso, resultado:", result.rows);
-      
-      // Mapear resultado para o tipo correto
-      return result.rows.map((row: any) => ({
-        id: row.id,
-        name: row.name,
-        image: row.image,
-        startDate: row.start_date,
-        endDate: row.end_date,
-        createdAt: new Date(row.created_at),
-      }));
+      console.log("Buscando campeonatos...");
+      const result = await db.select().from(championships);
+      console.log("Campeonatos encontrados:", result.length);
+      return result;
     } catch (error) {
-      console.error("Erro na query de campeonatos:", error);
+      console.error("Erro ao buscar campeonatos:", error);
       throw error;
     }
   }
@@ -135,11 +153,10 @@ export class DatabaseStorage implements IStorage {
       console.log("Criando campeonato com dados:", insertChampionship);
       
       const result = await db.execute(sql`
-        INSERT INTO championships (name, image, start_date, end_date, created_at) 
-        VALUES (${insertChampionship.name}, ${insertChampionship.image}, ${insertChampionship.startDate}, ${insertChampionship.endDate}, NOW())
+        INSERT INTO championships (name, image, start_date, end_date, created_at, updated_at) 
+        VALUES (${insertChampionship.name}, ${insertChampionship.image || null}, ${insertChampionship.startDate}, ${insertChampionship.endDate}, NOW(), NOW())
         RETURNING *
       `);
-      
       console.log("Campeonato criado com sucesso:", result.rows[0]);
       
       const row = result.rows[0] as any;
@@ -167,155 +184,40 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
-  // Métodos AdminTeams removidos - implementados no final do arquivo
-
-  // Athletes methods
-  async getAthletes(): Promise<Athlete[]> {
-    return await db.select().from(athletes);
-  }
-
-  async getAthletesByTeam(teamId: string): Promise<Athlete[]> {
-    return await db.select().from(athletes).where(eq(athletes.teamId, teamId));
-  }
-
-  async getAthlete(id: string): Promise<Athlete | undefined> {
-    const [athlete] = await db.select().from(athletes).where(eq(athletes.id, id));
-    return athlete;
-  }
-
-  async createAthlete(insertAthlete: InsertAthlete): Promise<Athlete> {
-    const [athlete] = await db.insert(athletes).values(insertAthlete).returning();
-    return athlete;
-  }
-
-  async updateAthlete(id: string, updateData: Partial<InsertAthlete>): Promise<Athlete | undefined> {
-    const [athlete] = await db.update(athletes).set(updateData).where(eq(athletes.id, id)).returning();
-    return athlete;
-  }
-
-  async deleteAthlete(id: string): Promise<boolean> {
-    const result = await db.delete(athletes).where(eq(athletes.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  // Referees methods
-  async getReferees(): Promise<Referee[]> {
-    return await db.select().from(referees);
-  }
-
-  async getReferee(id: string): Promise<Referee | undefined> {
-    const [referee] = await db.select().from(referees).where(eq(referees.id, id));
-    return referee;
-  }
-
-  async createReferee(insertReferee: InsertReferee): Promise<Referee> {
-    const [referee] = await db.insert(referees).values(insertReferee).returning();
-    return referee;
-  }
-
-  async updateReferee(id: string, updateData: Partial<InsertReferee>): Promise<Referee | undefined> {
-    const [referee] = await db.update(referees).set(updateData).where(eq(referees.id, id)).returning();
-    return referee;
-  }
-
-  async deleteReferee(id: string): Promise<boolean> {
-    const result = await db.delete(referees).where(eq(referees.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  // Championship Teams relationship methods
-  async getChampionshipTeams(championshipId: string): Promise<AdminTeam[]> {
-    const result = await db.select({
-      id: adminTeams.id,
-      name: adminTeams.name,
-      image: adminTeams.image,
-      createdAt: adminTeams.createdAt
-    })
-    .from(championshipTeams)
-    .innerJoin(adminTeams, eq(championshipTeams.teamId, adminTeams.id))
-    .where(eq(championshipTeams.championshipId, championshipId));
-    
-    return result;
-  }
-
-  async addTeamToChampionship(championshipId: string, teamId: string): Promise<ChampionshipTeam> {
-    const [championshipTeam] = await db.insert(championshipTeams).values({
-      championshipId,
-      teamId
-    }).returning();
-    return championshipTeam;
-  }
-
-  async removeTeamFromChampionship(championshipId: string, teamId: string): Promise<boolean> {
-    const result = await db.delete(championshipTeams)
-      .where(
-        and(
-          eq(championshipTeams.championshipId, championshipId),
-          eq(championshipTeams.teamId, teamId)
-        )
-      );
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  // Admin Teams methods - implementação completa usando SQL direto para contornar problema Drizzle
+  // AdminTeams
   async getAdminTeams(): Promise<AdminTeam[]> {
     try {
       console.log("Executando query para buscar times...");
-      // Usar query SQL direta temporariamente para contornar problema  
-      const result = await db.execute(sql`SELECT * FROM admin_teams ORDER BY created_at DESC`);
-      console.log("Query SQL executada com sucesso, resultado:", result.rows);
+      const result = await db.select().from(adminTeams);
+      console.log("Query SQL executada com sucesso, resultado:", result);
       
-      // Mapear resultado para o tipo correto
-      return result.rows.map((row: any) => ({
+      return result.map(row => ({
         id: row.id,
         name: row.name,
-        image: row.image,
-        rg: row.rg,
-        city: row.city,
-        state: row.state,
-        phone: row.phone,
-        email: row.email,
-        createdAt: new Date(row.created_at),
-        updatedAt: row.updated_at ? new Date(row.updated_at) : null,
+        image: row.image || null,
+        responsible: row.responsible || null,
+        phone: row.phone || null,
+        createdAt: row.createdAt ? new Date(row.createdAt) : null,
+        updatedAt: row.updatedAt ? new Date(row.updatedAt) : null,
       }));
     } catch (error) {
-      console.error("Erro na query de times:", error);
+      console.error("Erro ao buscar times:", error);
       throw error;
     }
   }
 
   async getAdminTeam(id: string): Promise<AdminTeam | undefined> {
-    try {
-      const result = await db.execute(sql`SELECT * FROM admin_teams WHERE id = ${id}`);
-      if (result.rows.length === 0) return undefined;
-      
-      const row = result.rows[0] as any;
-      return {
-        id: row.id,
-        name: row.name,
-        image: row.image,
-        rg: row.rg,
-        city: row.city,
-        state: row.state,
-        phone: row.phone,
-        email: row.email,
-        createdAt: new Date(row.created_at),
-        updatedAt: row.updated_at ? new Date(row.updated_at) : null,
-      };
-    } catch (error) {
-      console.error("Erro ao buscar time:", error);
-      throw error;
-    }
+    const [team] = await db.select().from(adminTeams).where(eq(adminTeams.id, id));
+    return team;
   }
 
-  async createAdminTeam(insertAdminTeam: InsertAdminTeam): Promise<AdminTeam> {
+  async createAdminTeam(insertTeam: InsertAdminTeam): Promise<AdminTeam> {
     try {
-      console.log("Criando time com dados:", insertAdminTeam);
+      console.log("Criando time com dados:", insertTeam);
       
-      // Apenas 4 campos: nome, imagem, responsável, telefone
       const result = await db.execute(sql`
         INSERT INTO admin_teams (name, image, responsible, phone, created_at, updated_at) 
-        VALUES (${insertAdminTeam.name}, ${insertAdminTeam.image || null}, ${insertAdminTeam.responsible || null}, ${insertAdminTeam.phone || null}, NOW(), NOW())
+        VALUES (${insertTeam.name}, ${insertTeam.image || null}, ${insertTeam.responsible || null}, ${insertTeam.phone || null}, NOW(), NOW())
         RETURNING *
       `);
       console.log("Time criado com sucesso:", result.rows[0]);
@@ -324,9 +226,9 @@ export class DatabaseStorage implements IStorage {
       return {
         id: row.id,
         name: row.name,
-        image: row.image || null,
-        responsible: row.responsible || null,
-        phone: row.phone || null,
+        image: row.image,
+        responsible: row.responsible,
+        phone: row.phone,
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
       };
@@ -336,7 +238,43 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Athletes methods (novos métodos para atletas)
+  async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
+    try {
+      const result = await db.execute(sql`
+        UPDATE admin_teams 
+        SET name = ${updateData.name || null}, 
+            image = ${updateData.image || null}, 
+            responsible = ${updateData.responsible || null}, 
+            phone = ${updateData.phone || null}, 
+            updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
+      `);
+      
+      if (result.rows.length === 0) return undefined;
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        responsible: row.responsible,
+        phone: row.phone,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      };
+    } catch (error) {
+      console.error("Erro ao atualizar time:", error);
+      throw error;
+    }
+  }
+
+  async deleteAdminTeam(id: string): Promise<boolean> {
+    const result = await db.delete(adminTeams).where(eq(adminTeams.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Athletes
   async getAthletes(): Promise<Athlete[]> {
     try {
       console.log("Executando query para buscar atletas...");
@@ -388,8 +326,8 @@ export class DatabaseStorage implements IStorage {
       console.log("Criando atleta com dados:", insertAthlete);
       
       const result = await db.execute(sql`
-        INSERT INTO athletes (name, document, image, created_at, updated_at) 
-        VALUES (${insertAthlete.name}, ${insertAthlete.document || null}, ${insertAthlete.image || null}, NOW(), NOW())
+        INSERT INTO athletes (name, document, image, team_id, created_at, updated_at) 
+        VALUES (${insertAthlete.name}, ${insertAthlete.document || null}, ${insertAthlete.image || null}, ${insertAthlete.teamId || null}, NOW(), NOW())
         RETURNING *
       `);
       console.log("Atleta criado com sucesso:", result.rows[0]);
@@ -400,6 +338,7 @@ export class DatabaseStorage implements IStorage {
         name: row.name,
         document: row.document || null,
         image: row.image || null,
+        teamId: row.team_id || null,
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
       };
@@ -411,11 +350,14 @@ export class DatabaseStorage implements IStorage {
 
   async updateAthlete(id: string, updateData: Partial<InsertAthlete>): Promise<Athlete | undefined> {
     try {
+      console.log("Atualizando atleta:", id, updateData);
+      
       const result = await db.execute(sql`
         UPDATE athletes 
-        SET name = COALESCE(${updateData.name}, name),
-            document = COALESCE(${updateData.document}, document), 
-            image = COALESCE(${updateData.image}, image),
+        SET name = ${updateData.name || null}, 
+            document = ${updateData.document || null}, 
+            image = ${updateData.image || null}, 
+            team_id = ${updateData.teamId || null},
             updated_at = NOW()
         WHERE id = ${id}
         RETURNING *
@@ -429,6 +371,7 @@ export class DatabaseStorage implements IStorage {
         name: row.name,
         document: row.document || null,
         image: row.image || null,
+        teamId: row.team_id || null,
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
       };
@@ -439,82 +382,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteAthlete(id: string): Promise<boolean> {
-    try {
-      const result = await db.execute(sql`
-        DELETE FROM athletes WHERE id = ${id}
-      `);
-      
-      return result.rowCount ? result.rowCount > 0 : false;
-    } catch (error) {
-      console.error("Erro ao deletar atleta:", error);
-      throw error;
-    }
+    const result = await db.delete(athletes).where(eq(athletes.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
-  async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
-    try {
-      const query = `
-        UPDATE admin_teams 
-        SET name = COALESCE($2, name),
-            image = COALESCE($3, image),
-            rg = COALESCE($4, rg),
-            city = COALESCE($5, city),
-            state = COALESCE($6, state),
-            phone = COALESCE($7, phone),
-            email = COALESCE($8, email),
-            updated_at = NOW()
-        WHERE id = $1
-        RETURNING *
-      `;
-      
-      const values = [
-        id,
-        updateData.name,
-        updateData.image,
-        updateData.rg,
-        updateData.city,
-        updateData.state,
-        updateData.phone,
-        updateData.email
-      ];
-      
-      const result = await db.execute(sql.raw(query, values));
-      if (result.rows.length === 0) return undefined;
-      
-      const row = result.rows[0] as any;
-      return {
-        id: row.id,
-        name: row.name,
-        image: row.image,
-        rg: row.rg,
-        city: row.city,
-        state: row.state,
-        phone: row.phone,
-        email: row.email,
-        createdAt: new Date(row.created_at),
-        updatedAt: new Date(row.updated_at),
-      };
-    } catch (error) {
-      console.error("Erro ao atualizar time:", error);
-      throw error;
-    }
-  }
-
-  async deleteAdminTeam(id: string): Promise<boolean> {
-    try {
-      const result = await db.delete(adminTeams).where(eq(adminTeams.id, id));
-      return (result.rowCount ?? 0) > 0;
-    } catch (error) {
-      console.error("Erro ao deletar time:", error);
-      throw error;
-    }
-  }
-
-  // Método para buscar atletas por time
   async getAthletesByTeam(teamId: string): Promise<Athlete[]> {
     try {
       const result = await db.select().from(athletes).where(eq(athletes.teamId, teamId));
-      
       return result.map(row => ({
         id: row.id,
         name: row.name,
@@ -525,17 +399,42 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(row.updatedAt),
       }));
     } catch (error) {
-      console.error("Erro ao buscar atletas por time:", error);
+      console.error("Erro ao buscar atletas do time:", error);
       throw error;
     }
   }
 
-  // Métodos para relacionamentos de campeonatos e times
+  // Referees
+  async getReferees(): Promise<Referee[]> {
+    return await db.select().from(referees);
+  }
+
+  async getReferee(id: string): Promise<Referee | undefined> {
+    const [referee] = await db.select().from(referees).where(eq(referees.id, id));
+    return referee;
+  }
+
+  async createReferee(insertReferee: InsertReferee): Promise<Referee> {
+    const [referee] = await db.insert(referees).values(insertReferee).returning();
+    return referee;
+  }
+
+  async updateReferee(id: string, updateData: Partial<InsertReferee>): Promise<Referee | undefined> {
+    const [referee] = await db.update(referees).set(updateData).where(eq(referees.id, id)).returning();
+    return referee;
+  }
+
+  async deleteReferee(id: string): Promise<boolean> {
+    const result = await db.delete(referees).where(eq(referees.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Championship Teams
   async getChampionshipTeams(championshipId: string): Promise<AdminTeam[]> {
     try {
       const result = await db.execute(sql`
-        SELECT t.* FROM admin_teams t
-        INNER JOIN championship_teams ct ON t.id = ct.team_id
+        SELECT at.* FROM admin_teams at
+        INNER JOIN championship_teams ct ON at.id = ct.team_id
         WHERE ct.championship_id = ${championshipId}
       `);
       
@@ -545,8 +444,8 @@ export class DatabaseStorage implements IStorage {
         image: row.image || null,
         responsible: row.responsible || null,
         phone: row.phone || null,
-        createdAt: new Date(row.created_at),
-        updatedAt: new Date(row.updated_at),
+        createdAt: row.created_at ? new Date(row.created_at) : null,
+        updatedAt: row.updated_at ? new Date(row.updated_at) : null,
       }));
     } catch (error) {
       console.error("Erro ao buscar times do campeonato:", error);
@@ -555,37 +454,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addTeamToChampionship(championshipId: string, teamId: string): Promise<ChampionshipTeam> {
-    try {
-      const [result] = await db.insert(championshipTeams).values({
-        championshipId,
-        teamId,
-      }).returning();
-      
-      return {
-        id: result.id,
-        championshipId: result.championshipId,
-        teamId: result.teamId,
-        createdAt: result.createdAt!,
-      };
-    } catch (error) {
-      console.error("Erro ao adicionar time ao campeonato:", error);
-      throw error;
-    }
+    const [championshipTeam] = await db.insert(championshipTeams).values({
+      championshipId,
+      teamId,
+    }).returning();
+    return championshipTeam;
   }
 
   async removeTeamFromChampionship(championshipId: string, teamId: string): Promise<boolean> {
-    try {
-      const result = await db.delete(championshipTeams).where(
-        and(
-          eq(championshipTeams.championshipId, championshipId),
-          eq(championshipTeams.teamId, teamId)
-        )
-      );
-      
-      return (result.rowCount ?? 0) > 0;
-    } catch (error) {
-      console.error("Erro ao remover time do campeonato:", error);
-      throw error;
-    }
+    const result = await db.delete(championshipTeams).where(
+      and(
+        eq(championshipTeams.championshipId, championshipId),
+        eq(championshipTeams.teamId, teamId)
+      )
+    );
+    return (result.rowCount ?? 0) > 0;
   }
 }
