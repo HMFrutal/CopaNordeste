@@ -49,6 +49,18 @@ export default function Navigation() {
                   </span>
                 </Link>
               ))}
+              
+              {/* Admin Button */}
+              <Link href="/admin">
+                <Button 
+                  variant={location.startsWith('/admin') ? "default" : "outline"}
+                  size="sm"
+                  className="ml-4"
+                  data-testid="nav-admin-button"
+                >
+                  Admin
+                </Button>
+              </Link>
             </div>
           </div>
           
@@ -83,6 +95,21 @@ export default function Navigation() {
                   </span>
                 </Link>
               ))}
+              
+              {/* Admin Button Mobile */}
+              <div className="px-3 py-2">
+                <Link href="/admin">
+                  <Button 
+                    variant={location.startsWith('/admin') ? "default" : "outline"}
+                    size="sm"
+                    className="w-full"
+                    data-testid="mobile-nav-admin-button"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Admin
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         )}
