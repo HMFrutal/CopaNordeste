@@ -22,7 +22,7 @@ export default function NewChampionshipPage() {
     resolver: zodResolver(insertChampionshipSchema),
     defaultValues: {
       name: "",
-      image: "",
+      image: null,
       startDate: "",
       endDate: "",
     },
@@ -107,7 +107,14 @@ export default function NewChampionshipPage() {
                         <Input
                           placeholder="Ex: Copa Nordeste 2025"
                           data-testid="input-name"
-                          {...field}
+                          value={field.value}
+                          onChange={(e) => {
+                            console.log("Input onChange:", e.target.value);
+                            field.onChange(e.target.value);
+                          }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -128,7 +135,10 @@ export default function NewChampionshipPage() {
                       <FormControl>
                         <ImageUploader
                           value={field.value || ""}
-                          onChange={field.onChange}
+                          onChange={(url) => {
+                            console.log("ImageUploader onChange chamado com:", url);
+                            field.onChange(url);
+                          }}
                           placeholder="Carregar imagem do campeonato"
                           data-testid="image-uploader"
                         />

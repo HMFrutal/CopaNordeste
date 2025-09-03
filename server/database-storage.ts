@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { db } from "./db";
 import { 
   teams, competitions, matches, news, contacts,
@@ -104,7 +104,25 @@ export class DatabaseStorage implements IStorage {
 
   // Championships methods
   async getChampionships(): Promise<Championship[]> {
-    return await db.select().from(championships);
+    try {
+      console.log("Executando query para buscar campeonatos...");
+      // Usar query SQL direta temporariamente para contornar problema
+      const result = await db.execute(sql`SELECT * FROM championships ORDER BY created_at DESC`);
+      console.log("Query SQL executada com sucesso, resultado:", result.rows);
+      
+      // Mapear resultado para o tipo correto
+      return result.rows.map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        startDate: row.start_date,
+        endDate: row.end_date,
+        createdAt: new Date(row.created_at),
+      }));
+    } catch (error) {
+      console.error("Erro na query de campeonatos:", error);
+      throw error;
+    }
   }
 
   async getChampionship(id: string): Promise<Championship | undefined> {
@@ -232,8 +250,10 @@ export class DatabaseStorage implements IStorage {
   async removeTeamFromChampionship(championshipId: string, teamId: string): Promise<boolean> {
     const result = await db.delete(championshipTeams)
       .where(
-        eq(championshipTeams.championshipId, championshipId) && 
-        eq(championshipTeams.teamId, teamId)
+        and(
+          eq(championshipTeams.championshipId, championshipId),
+          eq(championshipTeams.teamId, teamId)
+        )
       );
     return (result.rowCount ?? 0) > 0;
   }

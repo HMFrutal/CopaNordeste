@@ -112,6 +112,7 @@ export function ImageUploader({
   };
 
   const handleUploadClick = () => {
+    console.log("Clique no botão de upload, abrindo modal...");
     setShowModal(true);
   };
 

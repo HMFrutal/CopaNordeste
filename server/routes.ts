@@ -104,9 +104,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Championships routes
   app.get("/api/admin/championships", async (req, res) => {
     try {
+      console.log("Buscando campeonatos...");
       const championships = await storage.getChampionships();
+      console.log("Campeonatos encontrados:", championships.length);
       res.json(championships);
     } catch (error) {
+      console.error("Erro ao buscar campeonatos:", error);
       res.status(500).json({ message: "Falha ao buscar campeonatos" });
     }
   });
