@@ -39,7 +39,7 @@ export default function AthletesNewPage() {
       name: "",
       document: "",
       image: "",
-      teamId: "",
+      teamId: "none",
     },
   });
 
@@ -69,7 +69,7 @@ export default function AthletesNewPage() {
     const formattedData = {
       ...data,
       image: imageUrl || null,
-      teamId: data.teamId || null,
+      teamId: data.teamId === "none" ? null : data.teamId || null,
     };
     createMutation.mutate(formattedData);
   };
@@ -164,7 +164,7 @@ export default function AthletesNewPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="" data-testid="select-team-none">
+                        <SelectItem value="none" data-testid="select-team-none">
                           <span className="text-gray-500">Nenhum time</span>
                         </SelectItem>
                         {teams.map((team) => (
