@@ -26,7 +26,7 @@ export default function ChampionshipsPage() {
   });
 
   // Query para buscar campeonatos
-  const { data: championships = [], isLoading } = useQuery({
+  const { data: championships = [], isLoading } = useQuery<Championship[]>({
     queryKey: ["/api/admin/championships"],
   });
 
@@ -145,10 +145,10 @@ export default function ChampionshipsPage() {
                     <div className="flex-1">
                       <CardTitle className="text-lg">{championship.name}</CardTitle>
                       <CardDescription className="mt-1">
-                        {championship.description}
+                        Campeonato criado em {new Date(championship.createdAt || '').toLocaleDateString('pt-BR')}
                       </CardDescription>
                     </div>
-                    {getStatusBadge(championship.status)}
+                    {getStatusBadge('active')}
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -170,11 +170,16 @@ export default function ChampionshipsPage() {
                       <span>0 times inscritos</span>
                     </div>
 
-                    {championship.rules && (
-                      <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
-                          {championship.rules}
-                        </p>
+                    {championship.image && (
+                      <div className="flex items-center justify-center">
+                        <img 
+                          src={championship.image} 
+                          alt={championship.name}
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
                       </div>
                     )}
 

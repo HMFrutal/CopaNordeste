@@ -67,6 +67,8 @@ export const championships = pgTable("championships", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   image: text("image"),
+  startDate: text("start_date").notNull(),
+  endDate: text("end_date").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -133,7 +135,16 @@ export const insertContactSchema = createInsertSchema(contacts).omit({
 export const insertChampionshipSchema = createInsertSchema(championships).omit({
   id: true,
   createdAt: true,
-});
+}).extend({
+  startDate: z.string().min(1, "Data de início é obrigatória"),
+  endDate: z.string().min(1, "Data de fim é obrigatória"),
+}).refine(
+  (data) => new Date(data.startDate) <= new Date(data.endDate),
+  {
+    message: "A data de início deve ser anterior ou igual à data de fim",
+    path: ["endDate"],
+  }
+);
 
 export const insertAdminTeamSchema = createInsertSchema(adminTeams).omit({
   id: true,

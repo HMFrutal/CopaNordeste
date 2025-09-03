@@ -14,6 +14,7 @@ import Gallery from "@/pages/gallery";
 import Contact from "@/pages/contact";
 import AdminDashboard from "@/pages/admin";
 import ChampionshipsPage from "@/pages/admin/championships";
+import NewChampionshipPage from "@/pages/admin/championships-new";
 import AdminLogin from "@/pages/admin/login";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={() => <ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/championships/new" component={() => <ProtectedRoute><NewChampionshipPage /></ProtectedRoute>} />
       <Route path="/admin/championships" component={() => <ProtectedRoute><ChampionshipsPage /></ProtectedRoute>} />
       <Route component={NotFound} />
     </Switch>
