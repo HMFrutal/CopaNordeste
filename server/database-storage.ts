@@ -286,8 +286,22 @@ export class DatabaseStorage implements IStorage {
 
   async getAdminTeam(id: string): Promise<AdminTeam | undefined> {
     try {
-      const [team] = await db.select().from(adminTeams).where(eq(adminTeams.id, id));
-      return team;
+      const result = await db.execute(sql`SELECT * FROM admin_teams WHERE id = ${id}`);
+      if (result.rows.length === 0) return undefined;
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        image: row.image,
+        rg: row.rg,
+        city: row.city,
+        state: row.state,
+        phone: row.phone,
+        email: row.email,
+        createdAt: new Date(row.created_at),
+        updatedAt: row.updated_at ? new Date(row.updated_at) : null,
+      };
     } catch (error) {
       console.error("Erro ao buscar time:", error);
       throw error;
@@ -298,13 +312,62 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("Criando time com dados:", insertAdminTeam);
       
+      // Usar apenas nome, cidade e estado temporariamente para isolar o problema
       const result = await db.execute(sql`
-        INSERT INTO admin_teams (name, image, rg, city, state, phone, email, created_at, updated_at) 
-        VALUES (${insertAdminTeam.name}, ${insertAdminTeam.image || null}, ${insertAdminTeam.rg || null}, ${insertAdminTeam.city || null}, ${insertAdminTeam.state || null}, ${insertAdminTeam.phone || null}, ${insertAdminTeam.email || null}, NOW(), NOW())
+        INSERT INTO admin_teams (name, city, state, created_at, updated_at) 
+        VALUES (${insertAdminTeam.name}, ${insertAdminTeam.city || null}, ${insertAdminTeam.state || null}, NOW(), NOW())
         RETURNING *
       `);
-      
       console.log("Time criado com sucesso:", result.rows[0]);
+      
+      const row = result.rows[0] as any;
+      return {
+        id: row.id,
+        name: row.name,
+        image: row.image || null,
+        rg: row.rg || null,
+        city: row.city,
+        state: row.state,
+        phone: row.phone || null,
+        email: row.email || null,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+      };
+    } catch (error) {
+      console.error("Erro ao criar time:", error);
+      throw error;
+    }
+  }
+
+  async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
+    try {
+      const query = `
+        UPDATE admin_teams 
+        SET name = COALESCE($2, name),
+            image = COALESCE($3, image),
+            rg = COALESCE($4, rg),
+            city = COALESCE($5, city),
+            state = COALESCE($6, state),
+            phone = COALESCE($7, phone),
+            email = COALESCE($8, email),
+            updated_at = NOW()
+        WHERE id = $1
+        RETURNING *
+      `;
+      
+      const values = [
+        id,
+        updateData.name,
+        updateData.image,
+        updateData.rg,
+        updateData.city,
+        updateData.state,
+        updateData.phone,
+        updateData.email
+      ];
+      
+      const result = await db.execute(sql.raw(query, values));
+      if (result.rows.length === 0) return undefined;
       
       const row = result.rows[0] as any;
       return {
@@ -319,22 +382,6 @@ export class DatabaseStorage implements IStorage {
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
       };
-    } catch (error) {
-      console.error("Erro ao criar time:", error);
-      throw error;
-    }
-  }
-
-  async updateAdminTeam(id: string, updateData: Partial<InsertAdminTeam>): Promise<AdminTeam | undefined> {
-    try {
-      const [team] = await db.update(adminTeams)
-        .set({
-          ...updateData,
-          updatedAt: new Date(),
-        })
-        .where(eq(adminTeams.id, id))
-        .returning();
-      return team;
     } catch (error) {
       console.error("Erro ao atualizar time:", error);
       throw error;
